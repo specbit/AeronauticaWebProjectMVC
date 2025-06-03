@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35818.85 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyTickets2025", "FlyTickets2025\FlyTickets2025.csproj", "{27E52B1C-A402-43E9-A5AA-786BF0FC054C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyTickets2025.Web", "FlyTickets2025\FlyTickets2025.Web.csproj", "{27E52B1C-A402-43E9-A5AA-786BF0FC054C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
