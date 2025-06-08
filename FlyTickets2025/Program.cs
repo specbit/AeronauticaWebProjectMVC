@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FlyTickets2025.Data;
+using FlyTickets2025.Web.Data;
+using FlyTickets2025.Web.Data.Entities;
 
 namespace FlyTickets2025;
 
@@ -19,14 +21,17 @@ public class Program
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         // Configure Identity services
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddRoles<IdentityRole>() // Using roles
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
         // Add Razor Pages and MVC services
         builder.Services.AddControllersWithViews();
 
-        //
+        // Register SeedDb as a scoped service
+        builder.Services.AddScoped<SeedDb>();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -40,7 +45,9 @@ public class Program
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
-        
+
+        RunSeeding(app); // Call the seeding method after building the app
+
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
@@ -54,5 +61,26 @@ public class Program
         app.MapRazorPages();
 
         app.Run();
+    }
+
+    private static void RunSeeding(IHost host) // IHost is the base interface for WebApplication
+    {
+        var scopeFactory = host.Services.GetService<IServiceScopeFactory>();
+
+        using (var scope = scopeFactory.CreateScope())
+        {
+            // Resolve SeedDB from the service provider within this scope
+            var seeder = scope.ServiceProvider.GetService<SeedDb>();
+            if (seeder != null)
+            {
+                seeder.SeedAsync().Wait(); // Call the async method and wait for it to complete
+            }
+            else
+            {
+                // Log an error if the seeder could not be resolved
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                logger.LogError("Failed to retrieve SeedDB service during startup.");
+            }
+        }
     }
 }
