@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Sockets;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlyTickets2025.Web.Data.Entities
 {
-    public class Flight
+    public class Flight : IEntity
     {
         public int Id { get; set; }
 

@@ -6,12 +6,12 @@ namespace FlyTickets2025.Web.Data.Entities
     public class ApplicationUser : IdentityUser
     {
         [Required]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "The name must be at most 100 characters long.")]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "The name must be at most 100 characters long.")]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 

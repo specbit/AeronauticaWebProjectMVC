@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using FlyTickets2025.Data;
 using FlyTickets2025.Web.Data;
 using FlyTickets2025.Web.Data.Entities;
+using Microsoft.Extensions.Options;
+using FlyTickets2025.Web.Repositories;
 
 namespace FlyTickets2025;
 
@@ -22,7 +24,15 @@ public class Program
 
         // Configure Identity services
         //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-        builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = true;
+            options.Password.RequireDigit = false; // relax password policy for testing
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequiredLength = 6;
+        })
             .AddRoles<IdentityRole>() // Using roles
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -31,6 +41,12 @@ public class Program
 
         // Register SeedDb as a scoped service
         builder.Services.AddScoped<SeedDb>();
+
+        // Register the generic repository
+        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+        // Register specific repositories
+        builder.Services.AddScoped<ICityRepository, CityRepository>();
 
         var app = builder.Build();
 

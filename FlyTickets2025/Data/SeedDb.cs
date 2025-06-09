@@ -23,7 +23,7 @@ namespace FlyTickets2025.Web.Data
             await _context.Database.MigrateAsync(); // Ensure database and tables exist
 
             // 1. Create Roles if they don't exist
-            string[] roleNames = { "Administrator", "Funcionário", "Cliente", "Anónimo" };
+            string[] roleNames = { "Administrador", "Funcionário", "Cliente", "Anónimo" };
             foreach (var roleName in roleNames)
             {
                 if (!await _roleManager.RoleExistsAsync(roleName))
@@ -33,9 +33,13 @@ namespace FlyTickets2025.Web.Data
             }
 
             // 2. Create Administrator User if none exists
-            if (_userManager.Users.All(u => u.Id != "ADMIN_USER_ID")) // Replace with actual check or unique ID logic
+            var adminEmail = "nuno.goncalo.gomes@formandos.cinel.pt";
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+
+            if (adminUser == null)
             {
-                var adminUser = new ApplicationUser
+                // Create a new admin user
+                adminUser = new ApplicationUser
                 {
                     FirstName = "System",
                     LastName = "Admin",
@@ -44,10 +48,11 @@ namespace FlyTickets2025.Web.Data
                     EmailConfirmed = true // Assume initial admin is confirmed for easy setup
                 };
 
-                var result = await _userManager.CreateAsync(adminUser, "123456"); // !!! Use a strong, temporary password
+                var creationPassword = "123456";
+                var result = await _userManager.CreateAsync(adminUser, creationPassword); // !!! Use a strong, temporary password
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(adminUser, "Administrator");
+                    await _userManager.AddToRoleAsync(adminUser, "Administrador");
                 }
             }
 

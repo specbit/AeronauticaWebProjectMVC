@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlyTickets2025.Web.Data.Entities
 {
-    public class Ticket
+    public class Ticket : IEntity
     {
         public int Id { get; set; }
 
@@ -21,7 +21,7 @@ namespace FlyTickets2025.Web.Data.Entities
         [StringLength(10)]
         public string SeatNumber { get; set; } // "escolher o lugar pretendido" 
 
-        // You could use a simple bool, or derive availability from the existence of a ticket for that seat
+        // Use a simple bool, or derive availability from the existence of a ticket for that seat
         // "devendo depois de escolhido, ficar indisponível para os próximos compradores." 
         public bool IsBooked { get; set; } // Could be set to true upon purchase.
 
