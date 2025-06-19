@@ -8,16 +8,16 @@ namespace FlyTickets2025.Web.Data.Entities
         [Required]
         [StringLength(100, ErrorMessage = "The name must be at most 100 characters long.")]
         [Display(Name = "First Name")]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(100, ErrorMessage = "The name must be at most 100 characters long.")]
         [Display(Name = "Last Name")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = null!;
 
         public string? ProfilePicturePath { get; set; } // For optional user profile photos
 
         // Navigation property for Client's tickets/bookings
-        public ICollection<Ticket> Tickets { get; set; }
+        public ICollection<Ticket>? Tickets { get; set; }
     }
 }

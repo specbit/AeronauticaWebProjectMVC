@@ -7,9 +7,9 @@ namespace FlyTickets2025.Web.Controllers
 {
     public class CitiesController : Controller
     {
-        private readonly IGenericRepository<City> _cityRepository;
+        private readonly ICityRepository _cityRepository;
 
-        public CitiesController(IGenericRepository<City> cityRepository)
+        public CitiesController(ICityRepository cityRepository)
         {
             _cityRepository = cityRepository;
         }

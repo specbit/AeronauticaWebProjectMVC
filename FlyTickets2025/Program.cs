@@ -43,7 +43,7 @@ public class Program
         builder.Services.AddScoped<SeedDb>();
 
         // Register the generic repository
-        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        //builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         // Register specific repositories
         builder.Services.AddScoped<ICityRepository, CityRepository>();
@@ -83,10 +83,10 @@ public class Program
     {
         var scopeFactory = host.Services.GetService<IServiceScopeFactory>();
 
-        using (var scope = scopeFactory.CreateScope())
+        using (var scope = scopeFactory?.CreateScope())
         {
             // Resolve SeedDB from the service provider within this scope
-            var seeder = scope.ServiceProvider.GetService<SeedDb>();
+            var seeder = scope?.ServiceProvider.GetService<SeedDb>();
             if (seeder != null)
             {
                 seeder.SeedAsync().Wait(); // Call the async method and wait for it to complete
@@ -94,7 +94,7 @@ public class Program
             else
             {
                 // Log an error if the seeder could not be resolved
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                var logger = scope?.ServiceProvider.GetRequiredService<ILogger<Program>>();
                 logger.LogError("Failed to retrieve SeedDB service during startup.");
             }
         }
