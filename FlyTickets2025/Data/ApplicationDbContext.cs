@@ -6,7 +6,6 @@ namespace FlyTickets2025.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-    // Add DbSets for entities
     public DbSet<City> Cities { get; set; }
     public DbSet<Aircraft> Aircrafts { get; set; }
     public DbSet<Flight> Flights { get; set; }
@@ -19,77 +18,68 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder); // Crucial for Identity table creation and configuration
-                                            // No custom model configurations here yet
+        base.OnModelCreating(modelBuilder); // Necessário para Identity
 
-        // Configure relationships to prevent cascading deletes as required 
-        // All OnDelete(DeleteBehavior.Restrict) are used to prevent cascading deletes as per assignment
+        // ----------------------------
+        // RELACIONAMENTOS COM Flight
+        // ----------------------------
 
-        // Flight to City (Origin)
+        // Flight -> OriginCity (muitos voos têm uma cidade de origem)
         modelBuilder.Entity<Flight>()
             .HasOne(f => f.OriginCity)
-            .WithMany(c => c.OriginFlights) // From City.cs
+            .WithMany()
             .HasForeignKey(f => f.OriginCityId)
-            .OnDelete(DeleteBehavior.Restrict); // Or .NoAction
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Flight to City (Destination)
+        // Flight -> DestinationCity (muitos voos têm uma cidade de destino)
         modelBuilder.Entity<Flight>()
             .HasOne(f => f.DestinationCity)
-            .WithMany(c => c.DestinationFlights) // From City.cs
+            .WithMany()
             .HasForeignKey(f => f.DestinationCityId)
-            .OnDelete(DeleteBehavior.Restrict); // Or .NoAction
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Flight to Aircraft
+        // Flight -> Aircraft (muitos voos para uma aeronave)
         modelBuilder.Entity<Flight>()
             .HasOne(f => f.Aircraft)
-            .WithMany(a => a.Flights) // From Aircraft.cs
+            .WithMany(a => a.Flights)
             .HasForeignKey(f => f.AircraftId)
-            .OnDelete(DeleteBehavior.Restrict); // Or .NoAction
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Flight to Seat
+        // Flight -> Seats (um voo tem muitos assentos)
         modelBuilder.Entity<Flight>()
-            .HasMany(f => f.AvailableSeats) // From Flight.cs
+            .HasMany(f => f.Seats)
             .WithOne(s => s.Flight)
-            .HasForeignKey(s => s.FlightId) // From Seat.cs
+            .HasForeignKey(s => s.FlightId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Ticket to Flight 
+        // Flight -> Tickets (um voo tem muitos tickets)
         modelBuilder.Entity<Flight>()
-            .HasMany(f => f.Tickets) // From Flight.cs
+            .HasMany(f => f.Tickets)
             .WithOne(t => t.Flight)
-            .HasForeignKey(t => t.FlightId) // From Ticket.cs
+            .HasForeignKey(t => t.FlightId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // ApplicationUser to Ticket
-        modelBuilder.Entity<ApplicationUser>()
-            .HasMany(u => u.Tickets)
-            .WithOne(t => t.ApplicationUser)
-            .HasForeignKey(t => t.ApplicationUserId)
-            .OnDelete(DeleteBehavior.Restrict); // Or .NoAction, depending on whether deleting a user should delete their tickets.
+        // ----------------------------
+        // RELACIONAMENTOS COM Ticket
+        // ----------------------------
 
-        // Ticket to Aircraft (Model Link)
-        modelBuilder.Entity<Seat>()
-            .HasOne(s => s.AircraftModel)
-            .WithMany(a => a.SeatsClass)
-            .HasForeignKey(s => s.AircraftId)
-            .IsRequired() // Since Seat.AircraftId is 'required'
-            .OnDelete(DeleteBehavior.Restrict); // If you're keeping the AircraftTemplate link)
-
-        // Ticket to Seat (One-to-One or One-to-Zero..One: A Ticket has one Seat, a Seat can optionally have one Ticket)
-        // The foreign key is on the Ticket entity (SeatId).
+        // Ticket -> Seat (um ticket tem um assento)
         modelBuilder.Entity<Ticket>()
-            .HasOne(t => t.Seat) // Ticket has one Seat
-            .WithOne(s => s.Ticket) // Seat has one (optional) Ticket
-            .HasForeignKey<Ticket>(t => t.SeatId) // The FK is on the Ticket entity (SeatId property)
-            .IsRequired() 
+            .HasOne(t => t.Seat)
+            .WithMany()
+            .HasForeignKey(t => t.SeatId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Optional: Add a unique index on Seat.TicketId if you want to strictly enforce
-        // that a Seat can only be linked to one Ticket, and TicketId is nullable.
-        // This helps EF Core understand the 1-to-1 nature when the FK is nullable.
-        modelBuilder.Entity<Seat>()
-            .HasIndex(s => s.TicketId)
-            .IsUnique()
-            .HasFilter("[TicketId] IS NOT NULL"); // Only enforce uniqueness for non-null TicketIds
+        // Ticket -> ApplicationUser (um ticket pertence a um usuário)
+        modelBuilder.Entity<Ticket>()
+            .HasOne(t => t.ApplicationUser)
+            .WithMany(u => u.Tickets)
+            .HasForeignKey(t => t.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ----------------------------
+        // FIM DOS RELACIONAMENTOS
+        // ----------------------------
     }
 }

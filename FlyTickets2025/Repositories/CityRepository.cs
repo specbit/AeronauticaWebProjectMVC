@@ -18,8 +18,6 @@ namespace FlyTickets2025.Web.Repositories
         {
             // Example of including related entities
             return await _context.Cities
-                                 .Include(c => c.OriginFlights) // Eagerly load originating flights
-                                 .Include(c => c.DestinationFlights) // Eagerly load destination flights
                                  .AsNoTracking() // Good for read-only
                                  .ToListAsync();
         }

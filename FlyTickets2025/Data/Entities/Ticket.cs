@@ -51,5 +51,18 @@ namespace FlyTickets2025.Web.Data.Entities
         [Display(Name = "Data da Compra")] // Display name added
         [Required]
         public DateTime PurchaseDate { get; set; } // When the ticket was bought
+
+        [Display(Name = "Preço do Bilhete")]
+        [Required]
+        public decimal TicketPrice { get; set; }
+
+        [Display(Name = "Nome do Cliente")]
+        [Required]
+        public required string ClientName { get; set; }
+
+        [Display(Name = "Data do Voo")]
+        [DataType(DataType.DateTime)]
+        [Required]
+        public DateTime FlightDate { get; set; }
     }
 }

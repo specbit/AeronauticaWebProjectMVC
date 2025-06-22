@@ -4,19 +4,16 @@ using FlyTickets2025.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FlyTickets2025.Data.Migrations
+namespace FlyTickets2025.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250609200250_Seed_Test_Create_Admin")]
-    partial class Seed_Test_Create_Admin
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,13 +163,13 @@ namespace FlyTickets2025.Data.Migrations
                     b.Property<int>("AircraftId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ArrivalTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DepartureTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DestinationCityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationMinutes")
                         .HasColumnType("int");
 
                     b.Property<string>("FlightNumber")
@@ -194,6 +191,43 @@ namespace FlyTickets2025.Data.Migrations
                     b.ToTable("Flights");
                 });
 
+            modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.Seat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AircraftId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FlightId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAvailableForSale")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SeatNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AircraftId");
+
+                    b.HasIndex("FlightId");
+
+                    b.ToTable("Seats");
+                });
+
             modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -206,25 +240,38 @@ namespace FlyTickets2025.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ClientName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FlightDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("FlightId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsBooked")
                         .HasColumnType("bit");
 
+                    b.Property<int>("PassengerType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SeatNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int>("SeatId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TicketPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("FlightId");
+
+                    b.HasIndex("SeatId");
 
                     b.ToTable("Tickets");
                 });
@@ -375,13 +422,13 @@ namespace FlyTickets2025.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("FlyTickets2025.Web.Data.Entities.City", "DestinationCity")
-                        .WithMany("DestinationFlights")
+                        .WithMany()
                         .HasForeignKey("DestinationCityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FlyTickets2025.Web.Data.Entities.City", "OriginCity")
-                        .WithMany("OriginFlights")
+                        .WithMany()
                         .HasForeignKey("OriginCityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -391,6 +438,23 @@ namespace FlyTickets2025.Data.Migrations
                     b.Navigation("DestinationCity");
 
                     b.Navigation("OriginCity");
+                });
+
+            modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.Seat", b =>
+                {
+                    b.HasOne("FlyTickets2025.Web.Data.Entities.Aircraft", "AircraftModel")
+                        .WithMany()
+                        .HasForeignKey("AircraftId");
+
+                    b.HasOne("FlyTickets2025.Web.Data.Entities.Flight", "Flight")
+                        .WithMany("Seats")
+                        .HasForeignKey("FlightId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AircraftModel");
+
+                    b.Navigation("Flight");
                 });
 
             modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.Ticket", b =>
@@ -404,12 +468,20 @@ namespace FlyTickets2025.Data.Migrations
                     b.HasOne("FlyTickets2025.Web.Data.Entities.Flight", "Flight")
                         .WithMany("Tickets")
                         .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FlyTickets2025.Web.Data.Entities.Seat", "Seat")
+                        .WithMany()
+                        .HasForeignKey("SeatId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Flight");
+
+                    b.Navigation("Seat");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -473,15 +545,10 @@ namespace FlyTickets2025.Data.Migrations
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.City", b =>
-                {
-                    b.Navigation("DestinationFlights");
-
-                    b.Navigation("OriginFlights");
-                });
-
             modelBuilder.Entity("FlyTickets2025.Web.Data.Entities.Flight", b =>
                 {
+                    b.Navigation("Seats");
+
                     b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618

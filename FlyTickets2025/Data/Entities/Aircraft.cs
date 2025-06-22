@@ -9,7 +9,7 @@ namespace FlyTickets2025.Web.Data.Entities
         [Display(Name = "Nome do Modelo")]
         [Required]
         [StringLength(100)]
-        public required string Model { get; set; } // e.g., "Boeing 737", "Airbus A320" 
+        public string Model { get; set; } = null!;// e.g., "Boeing 737", "Airbus A320" 
 
         [Display(Name = "Total de Lugares")]
         [Required]
@@ -22,8 +22,5 @@ namespace FlyTickets2025.Web.Data.Entities
 
         // Navigation property: an aircraft can be used in many flights
         public ICollection<Flight>? Flights { get; set; }
-
-        // Navigation property: an aircraft (type) has many template seats
-        public ICollection<Seat>? SeatsClass { get; set; }
     }
 }

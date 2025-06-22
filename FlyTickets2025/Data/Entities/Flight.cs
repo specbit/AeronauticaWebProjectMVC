@@ -17,7 +17,7 @@ namespace FlyTickets2025.Web.Data.Entities
         [DataType(DataType.DateTime)]
         public DateTime DepartureTime { get; set; } // "data, hora" 
 
-        [Display(Name = "Duração (minutos)")] // <<< ADD Display Attribute
+        [Display(Name = "Duração (minutos)")] 
         [Required]
         //[Range(1, 1440)] // Example range, adjust as needed
         public required int DurationMinutes { get; set; }
@@ -46,7 +46,7 @@ namespace FlyTickets2025.Web.Data.Entities
         // Navigation property: a flight can have many tickets
         public ICollection<Ticket>? Tickets { get; set; }
 
-        // Navigation property: a flight has many Seat instances (available or occupied on this flight)
-        public ICollection<Seat>? AvailableSeats { get; set; }
+        // Navigation property: a flight has many Seat instances 
+        public ICollection<Seat>? Seats { get; set; }
     }
 }

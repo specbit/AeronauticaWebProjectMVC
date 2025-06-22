@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlyTickets2025.Web.Data.Entities
 {
+    // TODO: Move to a separate file 
     public enum SeatClass
     {
         [Display(Name = "Económico")]
@@ -10,6 +11,7 @@ namespace FlyTickets2025.Web.Data.Entities
         [Display(Name = "Executivo")]
         Executive
     }
+
     public class Seat
     {
         public int Id { get; set; }
@@ -42,21 +44,10 @@ namespace FlyTickets2025.Web.Data.Entities
 
         //TODO: Review if this is necessary, as a Seat might not always be tied to an Aircraft template.
 
-        // Foreign Key to the Aircraft (if this seat is part of an Aircraft's template layout, not tied to a specific flight instance)
-        // It's nullable because a specific seat on a *flight* might not directly link back to an Aircraft *template*.
-        // If 'Seat' is ONLY ever created per flight, this AircraftId might not be necessary.
+        // Foreign Key to the Aircraft 
         [Display(Name = "Modelo Aparelho")]
         public required int? AircraftId { get; set; } // Nullable, as a flight seat might just derive from a template, not directly reference it.
         [ForeignKey("AircraftId")]
         public Aircraft? AircraftModel { get; set; } // Nullable navigation property to Aircraft template
-
-        // Foreign Key to the Ticket that purchased this seat (nullable, as a seat might not be purchased yet)
-        // This implies a 1-to-1 or 1-to-0..1 relationship from Ticket to Seat.
-        // When a ticket is purchased, this ID will be set.
-        [Display(Name = "Bilhete Associado")]
-        public int? TicketId { get; set; } // Nullable as a seat can exist without a ticket
-        [ForeignKey("TicketId")]
-        public Ticket? Ticket { get; set; } // Nullable navigation property
-        
     }
 }

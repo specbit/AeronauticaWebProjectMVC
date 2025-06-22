@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using FlyTickets2025.Data;
 using FlyTickets2025.Web.Data;
 using FlyTickets2025.Web.Data.Entities;
-using Microsoft.Extensions.Options;
 using FlyTickets2025.Web.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlyTickets2025;
 
