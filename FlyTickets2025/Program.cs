@@ -25,7 +25,7 @@ public class Program
         //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
         {
-            options.SignIn.RequireConfirmedAccount = true;
+            options.SignIn.RequireConfirmedAccount = false;
             options.Password.RequireDigit = false; // relax password policy for testing
             options.Password.RequireLowercase = false;
             options.Password.RequireNonAlphanumeric = false;

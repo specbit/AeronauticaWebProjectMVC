@@ -1,0 +1,43 @@
+﻿@model FlyTickets2025.web.Models.RegisterNewEmployeeViewModel 
+
+@{
+    ViewData["Title"] = "Register Employee";
+}
+
+<h1>Register New Employee</h1>
+
+<p>This is the employee registration page.</p>
+
+<form asp-action="RegisterEmployee" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Confirm"></label>
+        <input asp-for="Confirm" type="password" class="form-control" />
+        <span asp-validation-for="Confirm" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Register Employee</button>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
