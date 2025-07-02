@@ -59,9 +59,9 @@ namespace FlyTickets2025.web.Data
             if (!_context.Cities.Any())
             {
                 _context.Cities.AddRange(
-                    new City { Name = "Lisboa", Country = "Portugal", FlagImagePath = "/images/flags/pt.png" },
-                    new City { Name = "Porto", Country = "Portugal", FlagImagePath = "/images/flags/pt.png" },
-                    new City { Name = "Madrid", Country = "Spain", FlagImagePath = "/images/flags/es.png" }
+                    new City { Name = "Lisboa", Country = "Portugal", FlagImagePath = "/images/flags/pt.png", AirportName="Humberto Delgado" },
+                    new City { Name = "Porto", Country = "Portugal", FlagImagePath = "/images/flags/pt.png", AirportName = "Sá Carneiro" },
+                    new City { Name = "Madrid", Country = "Spain", FlagImagePath = "/images/flags/es.png", AirportName = "Aeroporto Adolfo Suárez Madrid-Barajas" }
                 );
                 await _context.SaveChangesAsync();
             }

@@ -1,0 +1,120 @@
+﻿@model FlyTickets2025.web.Data.Entities.Seat
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Seat</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="SeatNumber" class="control-label"></label>
+                <input asp-for="SeatNumber" class="form-control" />
+                <span asp-validation-for="SeatNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <select asp-for="Type" class="form-control" asp-items="ViewBag.SeatType"></select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Value" class="control-label"></label>
+                <input asp-for="Value" class="form-control" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsAvailableForSale" /> @Html.DisplayNameFor(model => model.IsAvailableForSale)
+                </label>
+            </div>
+            @* <div class="form-group">
+                <label asp-for="FlightId" class="control-label"></label>
+                <select asp-for="FlightId" class ="form-control" asp-items="ViewBag.FlightId"></select>
+                <span asp-validation-for="FlightId" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="FlightId" class="control-label"></label>
+                <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightId" id="FlightIdDropdown"></select>
+                <span asp-validation-for="FlightId" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+                <label asp-for="AircraftId" class="control-label"></label>
+                <select asp-for="AircraftId" class ="form-control" asp-items="ViewBag.AircraftId"></select>
+            </div> *@
+            <div class="form-group">
+                <label class="control-label" id="aircraftModelLabel">Modelo Aparelho</label> @* Static label, no asp-for here *@
+                <input type="text" id="AircraftModelDisplay" class="form-control" disabled /> @* Displays the Aircraft Model, disabled *@
+                <input type="hidden" asp-for="AircraftId" id="AircraftIdHidden" /> @* Hidden field to send AircraftId to controller *@
+                <span asp-validation-for="AircraftId" class="text-danger"></span> @* Validation messages still appear here *@
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var $flightDropdown = $('#FlightIdDropdown'); // Use the ID added above
+            var $aircraftModelDisplay = $('#AircraftModelDisplay'); // The textbox for display
+            var $aircraftIdHidden = $('#AircraftIdHidden'); // The hidden field
+
+            // Function to update the display and hidden ID based on selected flight
+            function updateAircraftDisplay(flightId) {
+                if (flightId) { // Check if a flight is actually selected (not the empty option)
+                    $.ajax({
+                        url: '@Url.Action("GetAircraftByFlightId", "Seats")', // Call the controller action
+                        type: 'GET',
+                        data: { flightId: flightId },
+                        success: function (data) {
+                            if (data && data.aircraftId && data.aircraftModel) {
+                                $aircraftModelDisplay.val(data.aircraftModel); // Set the textbox value
+                                $aircraftIdHidden.val(data.aircraftId); // Set the hidden field value
+                            } else {
+                                // Handle case where flight exists but no aircraft is linked (shouldn't happen with required FK)
+                                $aircraftModelDisplay.val('N/A'); // Display "Not Available"
+                                $aircraftIdHidden.val(''); // Clear hidden ID
+                            }
+                        },
+                        error: function () {
+                            $aircraftModelDisplay.val('Erro ao carregar Aparelho'); // Display error message
+                            $aircraftIdHidden.val(''); // Clear hidden ID
+                        }
+                    });
+                } else {
+                    // If no flight is selected (e.g., "Select a Flight" option or default empty option)
+                    $aircraftModelDisplay.val('Selecione um Voo'); // Prompt user to select a flight
+                    $aircraftIdHidden.val(''); // Clear hidden ID
+                }
+            }
+
+            // Bind change event to the Flight dropdown
+            $flightDropdown.change(function () {
+                updateAircraftDisplay($(this).val()); // Call the function with the selected FlightId
+            });
+
+            // Trigger the change event on page load if a flight is pre-selected
+            // This is useful if the form is reloaded due to validation errors
+            if ($flightDropdown.val()) {
+                updateAircraftDisplay($flightDropdown.val());
+            } else {
+                // Set initial display text if no flight is selected on load
+                $aircraftModelDisplay.val('Selecione um Voo');
+                $aircraftIdHidden.val('');
+            }
+        });
+    </script>
+}

@@ -20,6 +20,7 @@ namespace FlyTickets2025.web.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
+                // TODO: add logic to redirect Client
                 return RedirectToAction("Index", "Home");
             }
 

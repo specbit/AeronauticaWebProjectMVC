@@ -22,10 +22,6 @@ namespace FlyTickets2025.web.Data
         {
             base.OnModelCreating(modelBuilder); // Necessário para Identity
 
-            // ----------------------------
-            // RELACIONAMENTOS COM Flight
-            // ----------------------------
-
             // Flight -> OriginCity (muitos voos têm uma cidade de origem)
             modelBuilder.Entity<Flight>()
                 .HasOne(f => f.OriginCity)
@@ -61,10 +57,6 @@ namespace FlyTickets2025.web.Data
                 .HasForeignKey(t => t.FlightId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ----------------------------
-            // RELACIONAMENTOS COM Ticket
-            // ----------------------------
-
             // Ticket -> Seat (um ticket tem um assento)
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Seat)
@@ -79,10 +71,6 @@ namespace FlyTickets2025.web.Data
                 .WithMany(u => u.Tickets)
                 .HasForeignKey(t => t.ApplicationUserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // ----------------------------
-            // FIM DOS RELACIONAMENTOS
-            // ----------------------------
         }
     }
 }

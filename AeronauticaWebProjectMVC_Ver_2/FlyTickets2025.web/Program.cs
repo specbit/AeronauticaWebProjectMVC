@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FlyTickets2025.web.Repositories;
 using FlyTickets2025.web.Helpers;
+using FlyTickets2025.Web.Repositories;
 
 namespace FlyTickets2025.web
 {
@@ -46,6 +47,9 @@ namespace FlyTickets2025.web
 
             // Register specific repositories
             builder.Services.AddScoped<ICityRepository, CityRepository>();
+            builder.Services.AddScoped<IAircraftRepository, AircraftRepository>();
+            builder.Services.AddScoped<IFlightsRepository, FlightsRepository>();
+            builder.Services.AddScoped<ISeatsRepository, SeatsRepository>();
 
             var app = builder.Build();
 

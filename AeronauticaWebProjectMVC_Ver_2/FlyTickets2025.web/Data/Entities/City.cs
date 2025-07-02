@@ -8,14 +8,18 @@ namespace FlyTickets2025.web.Data.Entities
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; } = null!; // e.g., "Lisboa", "New York" 
+        public string? Name { get; set; } // e.g., "Lisboa", "New York" 
+
+        [Required]
+        [Display(Name = "Nome do Aeroporto")]
+        public string? AirportName { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string Country { get; set; } = null!; // e.g., "Portugal", "USA" 
+        public string? Country { get; set; } // e.g., "Portugal", "USA" 
 
         // Property for the flag image path
         // "deverá aparecer a bandeira referente aos países das cidades de origem e destino." 
-        public string FlagImagePath { get; set; } = null!; // e.g., "/images/flags/portugal.png"
+        public string? FlagImagePath { get; set; }  // e.g., "/images/flags/portugal.png"
     }
 }

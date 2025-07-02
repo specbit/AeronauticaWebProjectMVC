@@ -12,7 +12,7 @@ namespace FlyTickets2025.web.Data.Entities
         Executive
     }
 
-    public class Seat
+    public class Seat : IEntity
     {
         public int Id { get; set; }
 
@@ -46,7 +46,7 @@ namespace FlyTickets2025.web.Data.Entities
 
         // Foreign Key to the Aircraft 
         [Display(Name = "Modelo Aparelho")]
-        public required int? AircraftId { get; set; } // Nullable, as a flight seat might just derive from a template, not directly reference it.
+        public required int AircraftId { get; set; } // Nullable, as a flight seat might just derive from a template, not directly reference it.
         [ForeignKey("AircraftId")]
         public Aircraft? AircraftModel { get; set; } // Nullable navigation property to Aircraft template
     }
