@@ -14,33 +14,38 @@ namespace FlyTickets2025.web.Data.Entities
     }
     public class Ticket : IEntity
     {
+        public Ticket()
+        {
+            
+        }
+
         public int Id { get; set; }
 
         // Foreign Key to the Flight
         [Display(Name = "Voo")]
         [Required] // A ticket must be associated with a flight
-        public required int FlightId { get; set; }
+        public int FlightId { get; set; }
         [ForeignKey("FlightId")]
-        public required Flight Flight { get; set; }// Links to the flight for which the ticket is bought 
+        public Flight Flight { get; set; }// Links to the flight for which the ticket is bought 
 
         // Foreign Key to the ApplicationUser (Client)
         [Display(Name = "Utilizador Associado")] // Display name added
         [Required]
-        public required string ApplicationUserId { get; set; } // IdentityUser's Id is a string (GUID)
+        public string ApplicationUserId { get; set; } // IdentityUser's Id is a string (GUID)
         [ForeignKey("ApplicationUserId")]
-        public required ApplicationUser ApplicationUser { get; set; } // Links to the client who bought the ticket 
+        public ApplicationUser ApplicationUser { get; set; } // Links to the client who bought the ticket 
 
         // Foreign Key to the specific Seat this ticket is for
         [Display(Name = "Assento Selecionado")] // "escolher o lugar pretendido"
         [Required] // A ticket must have a seat
-        public required int SeatId { get; set; }
+        public int SeatId { get; set; }
         [ForeignKey("SeatId")]
         public Seat? Seat { get; set; } // Navigation to the Seat object 
 
         // Property to store PassengerType
         [Display(Name = "Tipo de Passageiro")]
         [Required]
-        public required PassengerType PassengerType { get; set; } // Uses the enum
+        public PassengerType PassengerType { get; set; } // Uses the enum
 
         // Use a simple bool, or derive availability from the existence of a ticket for that seat
         // "devendo depois de escolhido, ficar indisponível para os próximos compradores." 
@@ -57,7 +62,7 @@ namespace FlyTickets2025.web.Data.Entities
 
         [Display(Name = "Nome do Cliente")]
         [Required]
-        public required string ClientName { get; set; }
+        public string ClientName { get; set; }
 
         [Display(Name = "Data do Voo")]
         [DataType(DataType.DateTime)]

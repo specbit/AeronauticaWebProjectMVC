@@ -51,11 +51,62 @@ namespace FlyTickets2025.Web.Repositories
                 .Include(f => f.Aircraft)
                 .Include(f => f.DestinationCity)
                 .Include(f => f.OriginCity)
+                .Include(f => f.Seats) // Inclui os assentos se necessário
                 .AsNoTracking() // Não rastreia a entidade
                 .FirstOrDefaultAsync(f => f.Id == id); // Encontra o primeiro que corresponde ao ID
         }
+        public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
+        {
+            return await _context.Flights.AsNoTracking().ToListAsync();
+        }
 
-        // Métodos como CreateAsync, UpdateAsync, DeleteAsync (por ID), GetByIdAsync, GetAllAsync, ExistsAsync
-        // são herdados automaticamente do GenericRepository<Flight> e já incluem SaveAllAsync() internamente.
+        public async Task<IEnumerable<Flight>> SearchFlightsAsync(int? originCityId, int? destinationCityId, DateTime? departureDate)
+        {
+            // Start with a query that includes necessary related entities
+            var query = _context.Flights
+                .Include(f => f.Aircraft)
+                .Include(f => f.OriginCity)
+                .Include(f => f.DestinationCity)
+                .AsNoTracking(); // Good for read-only search results
+
+            // Apply filters based on provided parameters
+            if (originCityId.HasValue && originCityId.Value > 0)
+            {
+                query = query.Where(f => f.OriginCity.Id == originCityId.Value);
+            }
+
+            if (destinationCityId.HasValue && destinationCityId.Value > 0)
+            {
+                query = query.Where(f => f.DestinationCity.Id == destinationCityId.Value);
+            }
+
+            if (departureDate.HasValue)
+            {
+                // Compare only the date part to ignore time differences
+                query = query.Where(f => f.DepartureTime.Date == departureDate.Value.Date);
+            }
+
+            // Order the results, for example, by departure time
+            query = query.OrderBy(f => f.DepartureTime);
+
+            // Execute the query and return the results
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Flight>> SearchFlightsAsync() // No parameters, return all flights with related entities
+        {
+            // Start with a query that includes necessary related entities
+            var query = _context.Flights
+                .Include(f => f.Aircraft)
+                .Include(f => f.OriginCity)
+                .Include(f => f.DestinationCity)
+                .AsNoTracking(); // Good for read-only search results
+
+            // Order the results, for example, by departure time
+            query = query.OrderBy(f => f.DepartureTime);
+
+            // Execute the query and return the results
+            return await query.ToListAsync();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿// Controllers/FlightsController.cs
 using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,46 @@ namespace FlyTickets2025.web.Controllers
             // Use repository method to get all flights including related entities
             var flights = await _flightsRepository.GetAllFlightsWithRelatedEntities().ToListAsync(); // <<< Use repository
             return View(flights);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> HomeCatalog(FlightSearchViewModel model) // Accept ViewModel
+        {
+            // Populate dropdowns for origin and destination cities
+            var cities = await _cityRepository.GetAllCitiesAsync();
+            model.OriginCities = new SelectList(cities, "Id", "Name", model.OriginCityId);
+            model.DestinationCities = new SelectList(cities, "Id", "Name", model.DestinationCityId);
+
+            // If search parameters are provided, perform the search
+            if (model.DepartureDate.HasValue || model.OriginCityId.HasValue || model.DestinationCityId.HasValue)
+            {
+                model.AvailableFlights = await _flightsRepository.SearchFlightsAsync(
+                    model.OriginCityId,
+                    model.DestinationCityId,
+                    model.DepartureDate);
+
+                if (model.AvailableFlights != null && model.AvailableFlights.Any())
+                {
+                    foreach (var flight in model.AvailableFlights)
+                    {
+                        flight.SetEstimateArrival(); // Calculate estimated arrival time for each flight
+                    }
+                }
+            }
+            else
+            {
+                model.AvailableFlights = await _flightsRepository.SearchFlightsAsync(); // Start with an empty list by default
+
+                if (model.AvailableFlights != null && model.AvailableFlights.Any())
+                {
+                    foreach (var flight in model.AvailableFlights)
+                    {
+                        flight.SetEstimateArrival(); // Calculate estimated arrival time for each flight
+                    }
+                }
+            }
+
+            return View(model); // Pass the populated ViewModel to the view
         }
 
         // GET: Flights/Details/5

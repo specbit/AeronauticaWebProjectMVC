@@ -1,6 +1,7 @@
 ﻿using FlyTickets2025.web.Data.Entities;
 using FlyTickets2025.web.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace FlyTickets2025.web.Helpers
 {
@@ -18,5 +19,7 @@ namespace FlyTickets2025.web.Helpers
         Task CheckRoleAsync(string roleName);
         Task AddUserToRoleAsync(ApplicationUser user, string roleName);
         Task<bool> IsUserInRoleAsync(ApplicationUser user, string roleName);
+        Task<IEnumerable<ApplicationUser>> GetAllUsersAsync();
+        Task<ApplicationUser?> GetUserByIdAsync(ClaimsPrincipal principal);
     }
 }

@@ -92,6 +92,7 @@ namespace FlyTickets2025.web.Controllers
                 //await _context.SaveChangesAsync();
 
                 // Using repository pattern, replace the above lines with:
+                seat.IsAvailableForSale = true; // Ensure the seat is available for sale by default
                 await _seatsRepository.CreateAsync(seat);
                 //await _seatsRepository.SaveAllAsync(); // No need to call SaveAllAsync here, as CreateAsync should handle it internally
 
@@ -154,6 +155,7 @@ namespace FlyTickets2025.web.Controllers
                     //await _context.SaveChangesAsync();
 
                     // Using repository pattern, replace the above lines with:
+                    seat.IsAvailableForSale = true; // Ensure the seat is available for sale by default
                     await _seatsRepository.UpdateAsync(seat);
                     //await _seatsRepository.SaveAllAsync(); // No need to call SaveAllAsync here, as UpdateAsync should handle it internally
                 }

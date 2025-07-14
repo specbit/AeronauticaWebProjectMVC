@@ -50,6 +50,7 @@ namespace FlyTickets2025.web
             builder.Services.AddScoped<IAircraftRepository, AircraftRepository>();
             builder.Services.AddScoped<IFlightsRepository, FlightsRepository>();
             builder.Services.AddScoped<ISeatsRepository, SeatsRepository>();
+            builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
             var app = builder.Build();
 
@@ -72,7 +73,7 @@ namespace FlyTickets2025.web
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Flights}/{action=HomeCatalog}/{id?}");
 
             app.Run();
         }

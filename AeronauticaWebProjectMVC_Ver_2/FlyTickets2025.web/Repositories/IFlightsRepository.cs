@@ -9,5 +9,8 @@ namespace FlyTickets2025.web.Repositories
         IQueryable<Flight> GetAllFlightsWithRelatedEntities();
 
         Task<Flight?> GetFlightWithRelatedEntitiesByIdAsync(int id);
+        Task<IEnumerable<Flight>> GetAllFlightsAsync();
+        Task<IEnumerable<Flight>> SearchFlightsAsync(int? originCityId, int? destinationCityId, DateTime? departureDate);
+        Task<IEnumerable<Flight>> SearchFlightsAsync();
     }
 }

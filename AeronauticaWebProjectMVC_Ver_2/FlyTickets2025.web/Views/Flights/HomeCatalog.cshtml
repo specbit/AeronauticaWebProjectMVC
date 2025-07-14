@@ -1,0 +1,112 @@
+﻿@model FlyTickets2025.web.Models.FlightSearchViewModel
+
+@{
+    ViewData["Title"] = "Choose your flight"; @* Sets the title of the browser tab *@
+}
+
+<h1>Choose your flight</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        @* Form submits to the HomeCatalog action using GET to preserve search parameters in URL *@
+        <form asp-action="HomeCatalog" method="get">
+            @* Displays a summary of model validation errors *@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-4 form-group mb-3">
+                    <label asp-for="OriginCityId" class="control-label"></label>
+                    @* Select list for Origin City. Using null-coalescing (??) to provide an empty SelectList if Model.OriginCities is null. *@
+                    <select asp-for="OriginCityId" class="form-control" asp-items="@(Model?.OriginCities ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                        <option value="">-- Select Origin --</option>
+                    </select>
+                    <span asp-validation-for="OriginCityId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 form-group mb-3">
+                    <label asp-for="DestinationCityId" class="control-label"></label>
+                    @* Select list for Destination City. Using null-coalescing (??) for robustness. *@
+                    <select asp-for="DestinationCityId" class="form-control" asp-items="@(Model?.DestinationCities ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                        <option value="">-- Select Destination --</option>
+                    </select>
+                    <span asp-validation-for="DestinationCityId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 form-group mb-3">
+                    <label asp-for="DepartureDate" class="control-label"></label>
+                    @* Input for Departure Date, type="date" enables date picker in modern browsers *@
+                    <input asp-for="DepartureDate" class="form-control" type="date" />
+                    <span asp-validation-for="DepartureDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Search Flights</button>
+                @* "Clear Search" button: navigates back to the HomeCatalog action without any parameters. *@
+                <a asp-action="HomeCatalog" asp-route-OriginCityId="" asp-route-DestinationCityId="" asp-route-DepartureDate="" class="btn btn-secondary">Clear Search</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+
+@* Check if the model and available flights exist and are not empty before displaying the table *@
+@if (Model != null && Model.AvailableFlights != null && Model.AvailableFlights.Any())
+{
+    <h2>Available Flights</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @* Using ?. (null-conditional operator) to safely access properties of FirstOrDefault() *@
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().FlightNumber)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().OriginCity)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().DestinationCity)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().DepartureTime)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().DurationMinutes)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().EstimateArrival)</th>
+                <th>@Html.DisplayNameFor(model => model.AvailableFlights.FirstOrDefault().Aircraft)</th>
+                <th></th> @* Column for action buttons*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.AvailableFlights)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.FlightNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.OriginCity.Name) - @Html.DisplayFor(modelItem => item.OriginCity.AirportName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DestinationCity.Name) - @Html.DisplayFor(modelItem => item.DestinationCity.AirportName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DepartureTime)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DurationMinutes)</td>
+                    <td>@Html.DisplayFor(modelItem => item.EstimateArrival)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Aircraft.Model)</td>
+                    <td>
+                        @* Since this view is protected by [Authorize(Roles = "Cliente")],
+                           we know the user is authenticated and is a "Cliente",
+                           so a direct "Buy Ticket" link is appropriate. *@
+                <a asp-controller="Tickets" asp-action="Create" asp-route-flightId="@item.Id" class="btn btn-success btn-sm">Buy Ticket</a>
+                </td>
+            </tr>
+}
+        </tbody>
+</table>
+}
+@* Conditional messages for no flights found or initial state *@
+else if (Model != null && (Model.DepartureDate.HasValue || Model.OriginCityId.HasValue || Model.DestinationCityId.HasValue))
+{
+<div class="alert alert-warning mt-3" role="alert">
+    No flights found matching your criteria.
+</div>
+}
+else
+{
+<div class="alert alert-info mt-3" role="alert">
+    Enter your desired flight details to search.
+</div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -17,7 +17,7 @@ namespace FlyTickets2025.web.Repositories
         public async Task<IEnumerable<Seat>> GetSeatsByFlightIdAsync(int flightId)
         {
             return await _context.Seats
-                                 .Where(s => s.FlightId == flightId)
+                                 .Where(s => s.FlightId == flightId && s.IsAvailableForSale == true)
                                  .Include(s => s.Flight) // Include the related Flight
                                  .Include(s => s.AircraftModel) // Include the related AircraftModel
                                  .AsNoTracking()
@@ -52,6 +52,11 @@ namespace FlyTickets2025.web.Repositories
                                  .Include(s => s.AircraftModel) // Include the related AircraftModel
                                  .AsNoTracking()
                                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Seat>> GetAllSeatsAsync()
+        {
+            return await _context.Seats.AsNoTracking().ToListAsync();
         }
     }
 }

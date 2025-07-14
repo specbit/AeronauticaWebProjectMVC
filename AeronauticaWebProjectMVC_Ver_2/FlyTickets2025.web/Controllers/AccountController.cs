@@ -21,7 +21,7 @@ namespace FlyTickets2025.web.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 // TODO: add logic to redirect Client
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("HomeCatalog", "Flights");
             }
 
             return View();
@@ -36,26 +36,51 @@ namespace FlyTickets2025.web.Controllers
 
                 if (result.Succeeded)
                 {
-                    if (this.Request.Query.Keys.Contains("ReturnUrl"))
+                    // Get the user object by their email (or username, depending on your LoginViewModel)
+                    var user = await _applicationUserHelper.GetUserByEmailasync(model.Username); // Assuming Username is email, adjust if it's actual username
+
+                    if (user == null)
                     {
-                        return Redirect(this.Request.Query["ReturnUrl"].First()); // Redirect to the URL specified in the query string
+                        this.ModelState.AddModelError(string.Empty, "User not found after successful login.");
+                        return View(model);
                     }
 
-                    // If no return URL is specified, redirect to the home page
-                    return RedirectToAction("Index", "Home");
+                    // --- Role-based Redirection Logic ---
+
+                    if (await _applicationUserHelper.IsUserInRoleAsync(user, "Administrador"))
+                    {
+                        return RedirectToAction("Index", "Home"); // Example Admin dashboard
+                    }
+                    else if (await _applicationUserHelper.IsUserInRoleAsync(user, "Funcionário"))
+                    {
+                        return RedirectToAction("Index", "Home"); // Example Employee dashboard
+                    }
+                    else if (await _applicationUserHelper.IsUserInRoleAsync(user, "Cliente"))
+                    {
+                        return RedirectToAction("HomeCatalog", "Flights"); // Example Client catalog
+                    }
+
+                    if (this.Request.Query.Keys.Contains("ReturnUrl"))
+                    {
+                        var returnUrl = this.Request.Query["ReturnUrl"].First();
+                        if (Url.IsLocalUrl(returnUrl))
+                        {
+                            return Redirect(returnUrl);
+                        }
+                    }
+
+                    return RedirectToAction("Index", "Home"); // Generic home page
                 }
             }
 
-            // If the login attempt failed, add an error to the model state
             this.ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-
             return View(model);
         }
 
         public async Task<IActionResult> Logout()
         {
             await _applicationUserHelper.LogoutAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("HomeCatalog", "Flights");
         }
 
         public IActionResult Register()

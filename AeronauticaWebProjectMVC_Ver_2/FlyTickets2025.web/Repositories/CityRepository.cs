@@ -21,5 +21,11 @@ namespace FlyTickets2025.web.Repositories
                                  .AsNoTracking() // Good for read-only
                                  .ToListAsync();
         }
+
+        public async Task<IEnumerable<City>> GetAllCitiesAsync()
+        {
+            // This directly gets all cities without eager loading relationships.
+            return await _context.Cities.AsNoTracking().ToListAsync();
+        }
     }
 }
