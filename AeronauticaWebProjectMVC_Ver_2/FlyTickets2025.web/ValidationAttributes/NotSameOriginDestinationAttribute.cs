@@ -1,4 +1,5 @@
 ﻿using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace FlyTickets2025.Web.ValidationAttributes 
@@ -9,7 +10,8 @@ namespace FlyTickets2025.Web.ValidationAttributes
         {
             // This attribute can be applied to either OriginCityId or DestinationCityId.
             // We need the full Flight object to compare both.
-            var flight = validationContext.ObjectInstance as Flight;
+            var flight = validationContext.ObjectInstance as FlightCreateViewModel;
+
             if (flight == null)
             {
                 return new ValidationResult("Validation context is not a Flight object.");

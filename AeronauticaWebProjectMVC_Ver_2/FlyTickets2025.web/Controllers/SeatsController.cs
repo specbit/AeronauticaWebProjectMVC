@@ -12,15 +12,15 @@ namespace FlyTickets2025.web.Controllers
     public class SeatsController : Controller
     {
         //private readonly ApplicationDbContext _context;
-        private readonly ISeatsRepository _seatsRepository;
+        private readonly ISeatRepository _seatsRepository;
         private readonly IAircraftRepository _aircraftRepository;
-        private readonly IFlightsRepository _flightsRepository;
+        private readonly IFlightRepository _flightsRepository;
 
 
         public SeatsController(
-            ISeatsRepository seatsRepository, 
+            ISeatRepository seatsRepository, 
             IAircraftRepository aircraftRepository, 
-            IFlightsRepository flightsRepository)
+            IFlightRepository flightsRepository)
         {
             //_context = context;
             _seatsRepository = seatsRepository;

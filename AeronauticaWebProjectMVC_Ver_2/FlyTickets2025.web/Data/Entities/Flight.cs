@@ -54,6 +54,16 @@ namespace FlyTickets2025.web.Data.Entities
         [Display(Name = "Chegada")]
         public DateTime EstimateArrival { get; set; }
 
+        [NotMapped]
+        //[Display(Name = "Default Flight Value")]
+        //[Range(1, double.MaxValue, ErrorMessage = "O valor defeito do voo deve ser maior que zero.")]
+        public decimal DefaultFlightValue { get; set; }
+
+        [NotMapped]
+        //[Display(Name = "Number Of Executive Seats")]
+        //[Range(1, int.MaxValue, ErrorMessage = "O número por defeito de percentagem de  voo deve ser maior que zero e um número inteiro.")]
+        public int PercentageOfExecutiveSeats { get; set; }
+
         // Navigation property: a flight can have many tickets
         public ICollection<Ticket>? Tickets { get; set; }
 

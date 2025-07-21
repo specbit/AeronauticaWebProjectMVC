@@ -14,15 +14,15 @@ namespace FlyTickets2025.web.Controllers
     {
         private readonly ITicketRepository _ticketRepository;
         private readonly IApplicationUserHelper _applicationUserHelper;       
-        private readonly IFlightsRepository _flightsRepository;   // New
-        private readonly ISeatsRepository _seatsRepository;       // New
+        private readonly IFlightRepository _flightsRepository;   // New
+        private readonly ISeatRepository _seatsRepository;       // New
 
         // Inject all necessary repositories
         public TicketsController(
             ITicketRepository ticketRepository,
         IApplicationUserHelper applicationUserHelper,
-            IFlightsRepository flightRepository,
-            ISeatsRepository seatRepository)
+            IFlightRepository flightRepository,
+            ISeatRepository seatRepository)
         {
             _ticketRepository = ticketRepository;
             _applicationUserHelper = applicationUserHelper;

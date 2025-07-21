@@ -1,4 +1,5 @@
 ﻿using FlyTickets2025.web.Data.Entities; // For IServiceProvider (needed for GetService)
+using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,7 +19,8 @@ namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
             int aircraftId = (int)value;
 
             // Get the Flight model instance being validated
-            var flight = validationContext.ObjectInstance as Flight;
+            var flight = validationContext.ObjectInstance as FlightCreateViewModel;
+
             if (flight == null)
             {
                 return new ValidationResult("Validation context is not a Flight object.");

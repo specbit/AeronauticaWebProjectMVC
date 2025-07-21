@@ -48,8 +48,8 @@ namespace FlyTickets2025.web
             // Register specific repositories
             builder.Services.AddScoped<ICityRepository, CityRepository>();
             builder.Services.AddScoped<IAircraftRepository, AircraftRepository>();
-            builder.Services.AddScoped<IFlightsRepository, FlightsRepository>();
-            builder.Services.AddScoped<ISeatsRepository, SeatsRepository>();
+            builder.Services.AddScoped<IFlightRepository, FlightRepository>();
+            builder.Services.AddScoped<ISeatRepository, SeatRepository>();
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
             var app = builder.Build();

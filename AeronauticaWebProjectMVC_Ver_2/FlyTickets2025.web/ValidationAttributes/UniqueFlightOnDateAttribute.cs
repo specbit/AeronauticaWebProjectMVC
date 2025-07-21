@@ -1,5 +1,6 @@
 ﻿using FlyTickets2025.web.Data;
 using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,7 +20,7 @@ namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
             string flightNumber = value.ToString() ?? string.Empty; // Cast to string
 
             // Get the Flight model instance being validated
-            var flight = validationContext.ObjectInstance as Flight;
+            var flight = validationContext.ObjectInstance as FlightCreateViewModel; // Adjust type as needed
             if (flight == null)
             {
                 return new ValidationResult("Validation context is not a Flight object.");

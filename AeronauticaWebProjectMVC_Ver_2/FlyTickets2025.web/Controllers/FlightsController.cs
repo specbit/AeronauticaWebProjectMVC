@@ -12,20 +12,23 @@ namespace FlyTickets2025.web.Controllers
     public class FlightsController : Controller
     {
         //private readonly ApplicationDbContext _context; // Keep ApplicationDbContext for SelectLists for now, ideally move to specific repos later
-        private readonly IFlightsRepository _flightsRepository;
+        private readonly IFlightRepository _flightsRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly ICityRepository _cityRepository;
+        private readonly ISeatRepository _seatRepository;  
 
         public FlightsController(
-            IFlightsRepository flightsRepository,
+            IFlightRepository flightsRepository,
             IAircraftRepository aircraftRepository,
-            ICityRepository cityRepository)
+            ICityRepository cityRepository,
+            ISeatRepository seatRepository)
         //ApplicationDbContext context)
         {
             //_context = context; // Keep context for SelectLists until dedicated City/Aircraft repositories for dropdowns
             _flightsRepository = flightsRepository;
             _aircraftRepository = aircraftRepository;
             _cityRepository = cityRepository;
+            _seatRepository = seatRepository;
         }
 
         // GET: Flights
@@ -110,20 +113,34 @@ namespace FlyTickets2025.web.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Funcionário")]
         // Ensure all properties are in Bind attribute that come from the form
-        public async Task<IActionResult> Create([Bind("Id,FlightNumber,DepartureTime,ArrivalTime,DurationMinutes,OriginCityId,DestinationCityId,AircraftId")] Flight flight)
+        public async Task<IActionResult> Create(FlightCreateViewModel request)
         {
             if (ModelState.IsValid)
             {
-                await _flightsRepository.CreateAsync(flight); // <<< Use repository
-                // SaveAllAsync is called internally by SuperShop-fashion repository
+                Flight flight = new Flight
+                {
+                    FlightNumber = request.FlightNumber,
+                    DepartureTime = request.DepartureTime,
+                    DurationMinutes = request.DurationMinutes,
+                    OriginCityId = request.OriginCityId,
+                    DestinationCityId = request.DestinationCityId,
+                    AircraftId = request.AircraftId,
+                    DefaultFlightValue = request.DefaultFlightValue, // Assuming this is set in the ViewModel
+                    PercentageOfExecutiveSeats = request.PercentageOfExecutiveSeats // Assuming this is set in the ViewModel
+                };
+
+                var newFlight = await _flightsRepository.CreateAsync(flight); 
+
+                var seatsList = await _seatRepository.CreateSeatsForFlightAsync(newFlight.Id, request.DefaultFlightValue, request.PercentageOfExecutiveSeats);
+
                 return RedirectToAction(nameof(Index));
             }
 
             // Repopulate ViewBags if ModelState is invalid
-            ViewData["AircraftId"] = new SelectList(await _aircraftRepository.GetAllAsync(), "Id", "Model", flight.AircraftId);
-            ViewData["DestinationCityId"] = new SelectList(await _cityRepository.GetAllAsync(), "Id", "AirportName", flight.DestinationCityId);
-            ViewData["OriginCityId"] = new SelectList(await _cityRepository.GetAllAsync(), "Id", "AirportName", flight.OriginCityId);
-            return View(flight);
+            ViewData["AircraftId"] = new SelectList(await _aircraftRepository.GetAllAsync(), "Id", "Model", request.AircraftId);
+            ViewData["DestinationCityId"] = new SelectList(await _cityRepository.GetAllAsync(), "Id", "AirportName", request.DestinationCityId);
+            ViewData["OriginCityId"] = new SelectList(await _cityRepository.GetAllAsync(), "Id", "AirportName", request.OriginCityId);
+            return View(request);
         }
 
         // GET: Flights/Edit/5

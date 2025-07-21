@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore; // Para .Include(), .AsNoTracking(), .AnyAs
 
 namespace FlyTickets2025.Web.Repositories
 {
-    public class FlightsRepository : GenericRepository<Flight>, IFlightsRepository
+    public class FlightRepository : GenericRepository<Flight>, IFlightRepository
     {
         private readonly ApplicationDbContext _context; // Referência ao DbContext para queries específicas (como Includes)
 
-        public FlightsRepository(ApplicationDbContext context) : base(context) // Passa o contexto para o construtor da classe base (GenericRepository)
+        public FlightRepository(ApplicationDbContext context) : base(context) // Passa o contexto para o construtor da classe base (GenericRepository)
         {
             _context = context; // Armazena o contexto para uso em métodos específicos
         }
@@ -107,6 +107,14 @@ namespace FlyTickets2025.Web.Repositories
 
             // Execute the query and return the results
             return await query.ToListAsync();
+        }
+
+        public async Task<Flight> CreateAsync(Flight entity)
+        {
+            entity.SetEstimateArrival();
+            await _context.Flights.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity; // Return the created flight
         }
     }
 }

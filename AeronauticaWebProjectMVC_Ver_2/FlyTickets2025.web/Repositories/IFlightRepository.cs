@@ -2,7 +2,7 @@
 
 namespace FlyTickets2025.web.Repositories
 {
-    public interface IFlightsRepository : IGenericRepository<Flight>
+    public interface IFlightRepository : IGenericRepository<Flight>
     {
         Task<bool> IsFlightNumberUniqueOnDateAsync(string flightNumber, DateTime date, int? currentFlightId = null);
 
@@ -12,5 +12,7 @@ namespace FlyTickets2025.web.Repositories
         Task<IEnumerable<Flight>> GetAllFlightsAsync();
         Task<IEnumerable<Flight>> SearchFlightsAsync(int? originCityId, int? destinationCityId, DateTime? departureDate);
         Task<IEnumerable<Flight>> SearchFlightsAsync();
+
+        Task<Flight> CreateAsync(Flight entity);
     }
 }
