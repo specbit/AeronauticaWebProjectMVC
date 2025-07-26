@@ -1,16 +1,16 @@
-﻿@model FlyTickets2025.web.Data.Entities.City
+﻿@model FlyTickets2025.web.Models.CityViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create new city";
 }
 
-<h1>Create</h1>
+<h1>Create new city</h1>
 
 <h4>City</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -28,21 +28,27 @@
                 <span asp-validation-for="Country" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="FlagImageFile" class="control-label"></label>
+                <input asp-for="FlagImageFile" class="form-control" type="file" />
+                <span asp-validation-for="FlagImageFile" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
                 <label asp-for="FlagImagePath" class="control-label"></label>
                 <input asp-for="FlagImagePath" class="form-control" />
                 <span asp-validation-for="FlagImagePath" class="text-danger"></span>
-            </div>
+            </div> *@
+            <br />
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <button type="submit" class="btn btn-warning">Create</button>
+                <a asp-action="Index" class="btn btn-success">Back to List</a>
             </div>
+            <br />
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

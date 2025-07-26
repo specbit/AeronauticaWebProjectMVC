@@ -1,5 +1,6 @@
 ﻿using FlyTickets2025.web.Data;
 using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,10 +62,33 @@ namespace FlyTickets2025.web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Create([Bind("Id,Model,TotalSeats,PhotoPath")] Aircraft aircraft)
+        public async Task<IActionResult> Create(AircraftViewModel aircraftViewModel)
         {
             if (ModelState.IsValid)
             {
+                var path = string.Empty;
+
+                // Handle file upload if a file is provided
+                if (aircraftViewModel.AircraftImageFile != null && aircraftViewModel.AircraftImageFile.Length > 0)
+                {
+                    path = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot\\images\\aircrafts", // Ensure the path is relative to wwwroot
+                        aircraftViewModel.AircraftImageFile.FileName);
+
+                    // Save the uploaded file to the specified path
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        await aircraftViewModel.AircraftImageFile.CopyToAsync(stream);
+                    }
+
+                    // Set the FlagImagePath property to the relative path
+                    path = $"~/images/aircrafts/{aircraftViewModel.AircraftImageFile.FileName}";
+                }
+
+                // Create a new Aircraft entity from the view model
+                var aircraft = this.ToAircraftEntity(aircraftViewModel, path);
+
                 //_context.Add(aircraft);
                 //await _context.SaveChangesAsync();
 
@@ -72,7 +96,17 @@ namespace FlyTickets2025.web.Controllers
                 await _aircraftRepository.SaveAllAsync(); 
                 return RedirectToAction(nameof(Index));
             }
-            return View(aircraft);
+            return View(aircraftViewModel);
+        }
+
+        private Aircraft ToAircraftEntity(AircraftViewModel aircraftViewModel, string path)
+        {
+            return new Aircraft
+            {
+                Model = aircraftViewModel.Model,
+                TotalSeats = aircraftViewModel.TotalSeats,
+                AircraftImagePath = path // Use the path for the image
+            };
         }
 
         // GET: Aircrafts/Edit/5
@@ -91,7 +125,23 @@ namespace FlyTickets2025.web.Controllers
             {
                 return NotFound();
             }
-            return View(aircraft);
+
+            // Convert the Aircraft entity to AircraftViewModel for editing
+            var aircraftViewModel = this.ToAircraftViewModel(aircraft);
+
+            return View(aircraftViewModel);
+        }
+
+        private AircraftViewModel ToAircraftViewModel(Aircraft aircraft)
+        {
+            return new AircraftViewModel
+            {
+                Id = aircraft.Id,
+                Model = aircraft.Model,
+                TotalSeats = aircraft.TotalSeats,
+                //AircraftImageFile = null, // No file uploaded yet
+                AircraftImagePath = aircraft.AircraftImagePath // Keep the existing image path
+            };
         }
 
         // POST: Aircrafts/Edit/5
@@ -100,25 +150,53 @@ namespace FlyTickets2025.web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Model,TotalSeats,PhotoPath")] Aircraft aircraft)
+        public async Task<IActionResult> Edit(AircraftViewModel aircraftViewModel)
         {
-            if (id != aircraft.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    //_context.Update(aircraft);
-                    //await _context.SaveChangesAsync();
-                    await _aircraftRepository.UpdateAsync(aircraft);
-                    await _aircraftRepository.SaveAllAsync(); // Ensure changes are saved
+                    // 1. Get the aircraft entity that already exists in the database
+                    var aircraftToUpdate = await _aircraftRepository.GetByIdAsync(aircraftViewModel.Id);
+                    if (aircraftToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // 2. Get the existing path for the aircraft image
+                    var path = aircraftToUpdate.AircraftImagePath;
+
+                    // 3. Handle file upload if a new file is provided
+                    if (aircraftViewModel.AircraftImageFile != null && aircraftViewModel.AircraftImageFile.Length > 0)
+                    {
+                        // Get the physical path to save the image
+                        var physicalPath = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot\\images\\aircrafts",
+                            aircraftViewModel.AircraftImageFile.FileName);
+
+                        // Save the uploaded file
+                        using (var stream = new FileStream(physicalPath, FileMode.Create))
+                        {
+                            await aircraftViewModel.AircraftImageFile.CopyToAsync(stream);
+                        }
+
+                        // Update the path variable with the new relative path
+                        path = $"~/images/aircrafts/{aircraftViewModel.AircraftImageFile.FileName}";
+                    }
+
+                    // 4. Update the properties on the entity you fetched
+                    aircraftToUpdate.Model = aircraftViewModel.Model;
+                    aircraftToUpdate.TotalSeats = aircraftViewModel.TotalSeats;
+                    aircraftToUpdate.AircraftImagePath = path; // Use the path (either old or new)
+
+                    // 5. Save the updated entity
+                    await _aircraftRepository.UpdateAsync(aircraftToUpdate);
+                    await _aircraftRepository.SaveAllAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _aircraftRepository.ExistsAsync(aircraft.Id))
+                    if (!await _aircraftRepository.ExistsAsync(aircraftViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -129,7 +207,9 @@ namespace FlyTickets2025.web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(aircraft);
+
+            // If model state is invalid, return the view with the submitted data
+            return View(aircraftViewModel);
         }
 
         // GET: Aircrafts/Delete/5

@@ -1,5 +1,6 @@
 ﻿using FlyTickets2025.web.Data;
 using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -54,17 +55,56 @@ namespace FlyTickets2025.web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,AirportName,Country,FlagImagePath")] City city)
+        //public async Task<IActionResult> Create([Bind("Id,Name,AirportName,Country,FlagImagePath")] City city)
+        public async Task<IActionResult> Create(CityViewModel cityViewModel)
         {
             if (ModelState.IsValid)
             {
+                var path = string.Empty;
+
+                // Handle file upload if a file is provided
+                if (cityViewModel.FlagImageFile != null && cityViewModel.FlagImageFile.Length > 0)
+                {
+                    // Get the directory to save the image
+                    path = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot\\images\\cities", // Ensure the path is relative to wwwroot
+                        cityViewModel.FlagImageFile.FileName);
+
+                    // Save the uploaded file to the specified path
+                    using (var stream = new FileStream(path, FileMode.Create)) 
+                    {
+                        await cityViewModel.FlagImageFile.CopyToAsync(stream);
+                    }
+
+                    // Set the FlagImagePath property to the relative path
+                    path = $"~/images/cities/{cityViewModel.FlagImageFile.FileName}";
+                }
+
+                // Create a new City entity from the view model
+                var city = this.ToCityEntity(cityViewModel, path);
+
                 //_context.Add(city);
                 //await _context.SaveChangesAsync();
                 await _cityRepository.CreateAsync(city);
                 await _cityRepository.SaveAllAsync(); // Ensure changes are saved
                 return RedirectToAction(nameof(Index));
             }
-            return View(city);
+
+            // If model state is invalid, return the view with the current model
+            return View(cityViewModel);
+        }
+
+        private City ToCityEntity(CityViewModel cityViewModel, string path)
+        {
+            return new City
+            {
+                Id = cityViewModel.Id,
+                Name = cityViewModel.Name,
+                AirportName = cityViewModel.AirportName,
+                Country = cityViewModel.Country,
+                FlagImagePath = path // Set the path to the uploaded image
+            };
         }
 
         // GET: Cities/Edit/5
@@ -82,7 +122,23 @@ namespace FlyTickets2025.web.Controllers
             {
                 return NotFound();
             }
-            return View(city);
+
+            // Convert City to CityViewModel for editing
+            var cityViewModel= ToCityViewModel(city);
+
+            return View(cityViewModel);
+        }
+
+        private static CityViewModel? ToCityViewModel(City city)
+        {
+            return new CityViewModel
+            {
+                Id = city.Id,
+                Name = city.Name,
+                AirportName = city.AirportName,
+                Country = city.Country,
+                FlagImagePath = city.FlagImagePath
+            };
         }
 
         // POST: Cities/Edit/5
@@ -90,17 +146,44 @@ namespace FlyTickets2025.web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,AirportName,Country,FlagImagePath")] City city)
+        public async Task<IActionResult> Edit(CityViewModel cityViewModel)
         {
-            if (id != city.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Get the city entity that already exists in the database
+                    var cityToUpdate = await _cityRepository.GetByIdAsync(cityViewModel.Id);
+
+                    if (cityToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Get the existing path for the flag image
+                    var path = cityToUpdate.FlagImagePath; // Keep the existing path
+
+                    // Handle file upload if a new file is provided
+                    if (cityViewModel.FlagImageFile != null && cityViewModel.FlagImageFile.Length > 0)
+                    {
+                        // Get the directory to save the image
+                        var physicalPath = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot\\images\\cities", // Ensure the path is relative to wwwroot
+                            cityViewModel.FlagImageFile.FileName);
+
+                        // Save the uploaded file to the specified path
+                        using (var stream = new FileStream(physicalPath, FileMode.Create))
+                        {
+                            await cityViewModel.FlagImageFile.CopyToAsync(stream);
+                        }
+
+                        // Set the FlagImagePath property to the relative path
+                        path = $"~/images/cities/{cityViewModel.FlagImageFile.FileName}";
+                    }
+
+                    var city = this.ToCityEntity(cityViewModel, path!);
+
                     //_context.Update(city);
                     //await _context.SaveChangesAsync();
 
@@ -109,7 +192,7 @@ namespace FlyTickets2025.web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _cityRepository.ExistsAsync(city.Id))
+                    if (!await _cityRepository.ExistsAsync(cityViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -120,7 +203,7 @@ namespace FlyTickets2025.web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(city);
+            return View(cityViewModel);
         }
 
         // GET: Cities/Delete/5

@@ -1,4 +1,4 @@
-﻿@model FlyTickets2025.web.Data.Entities.Aircraft
+﻿@model FlyTickets2025.web.Models.AircraftViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -10,8 +10,9 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @* <div asp-validation-summary="All" class="text-danger"></div> *@
             <div class="form-group">
                 <label asp-for="Model" class="control-label"></label>
                 <input asp-for="Model" class="form-control" />
@@ -23,9 +24,9 @@
                 <span asp-validation-for="TotalSeats" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PhotoPath" class="control-label"></label>
-                <input asp-for="PhotoPath" class="form-control" />
-                <span asp-validation-for="PhotoPath" class="text-danger"></span>
+                <label asp-for="AircraftImageFile" class="control-label"></label>
+                <input asp-for="AircraftImageFile" class="form-control" type="file" />
+                <span asp-validation-for="AircraftImageFile" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

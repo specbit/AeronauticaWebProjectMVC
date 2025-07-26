@@ -24,16 +24,25 @@
             @Html.DisplayFor(model => model.TotalSeats)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhotoPath)
+            @* @Html.DisplayNameFor(model => model.AircraftImagePath) *@
+            Aircraft Image
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhotoPath)
+            @* @Html.DisplayFor(model => model.AircraftImagePath) *@
+            @if (!string.IsNullOrEmpty(Model.AircraftImagePath))
+            {
+                <img src="@Url.Content(Model.AircraftImagePath)" alt="Aircraft Image" style="width:200px; height:auto; border-radius:5px;" />
+            }
+            else
+            {
+                <span>No Image</span>
+            }
         </dd>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <button type="submit" class="btn btn-danger">Delete</button> |
+        <a asp-action="Index" class="btn btn-success">Back to List</a>
     </form>
 </div>

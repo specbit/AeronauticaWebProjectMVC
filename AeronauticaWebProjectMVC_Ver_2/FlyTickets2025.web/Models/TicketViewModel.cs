@@ -29,9 +29,9 @@ namespace FlyTickets2025.web.Models
 
         [Display(Name = "Passenger Type")]
         [Required(ErrorMessage = "Passenger type is required.")]
-        public PassengerType PassengerType { get; set; } // Assuming this is an enum
+        public PassengerType PassengerType { get; set; } 
 
-        [Display(Name = "Booked?")]
+        [Display(Name = "Booked")]
         public bool IsBooked { get; set; } // Will be pre-set in controller, read-only in view
 
         [Display(Name = "Purchase Date")]

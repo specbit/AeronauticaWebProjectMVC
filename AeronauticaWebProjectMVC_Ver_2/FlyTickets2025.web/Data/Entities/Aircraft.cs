@@ -17,8 +17,7 @@ namespace FlyTickets2025.web.Data.Entities
         public int TotalSeats { get; set; } // "Consoante os tipos de aparelho disponível deverão ser criados os lugares para venda." 
 
         [Display(Name = "URL da Foto")]
-        [Required]
-        public required string PhotoPath { get; set; }  // "Os aparelhos terão de ter uma foto obrigatória" 
+        public string? AircraftImagePath { get; set; }  // "Os aparelhos terão de ter uma foto obrigatória" 
 
         // Navigation property: an aircraft can be used in many flights
         public ICollection<Flight>? Flights { get; set; }

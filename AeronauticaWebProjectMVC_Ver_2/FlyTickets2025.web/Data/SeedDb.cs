@@ -69,8 +69,8 @@ namespace FlyTickets2025.web.Data
             if (!_context.Aircrafts.Any())
             {
                 _context.Aircrafts.AddRange(
-                    new Aircraft { Model = "Boeing 737", TotalSeats = 180, PhotoPath = "/images/aircraft/b737.jpg" },
-                    new Aircraft { Model = "Airbus A320", TotalSeats = 150, PhotoPath = "/images/aircraft/a320.jpg" }
+                    new Aircraft { Model = "Boeing 737", TotalSeats = 180, AircraftImagePath = "/images/aircraft/b737.jpg" },
+                    new Aircraft { Model = "Airbus A320", TotalSeats = 150, AircraftImagePath = "/images/aircraft/a320.jpg" }
                 );
                 await _context.SaveChangesAsync();
             }

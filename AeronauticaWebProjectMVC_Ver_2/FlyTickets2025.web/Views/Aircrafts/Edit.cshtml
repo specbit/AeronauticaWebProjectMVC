@@ -1,4 +1,4 @@
-﻿@model FlyTickets2025.web.Data.Entities.Aircraft
+﻿@model FlyTickets2025.web.Models.AircraftViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -24,21 +24,48 @@
                 <span asp-validation-for="TotalSeats" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PhotoPath" class="control-label"></label>
-                <input asp-for="PhotoPath" class="form-control" />
-                <span asp-validation-for="PhotoPath" class="text-danger"></span>
+                <label asp-for="AircraftImageFile" class="control-label"></label>
+                <input asp-for="AircraftImageFile" class="form-control" />
+                <span asp-validation-for="AircraftImageFile" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
+    <div class="col-md-5">
+        <h5>Current Image</h5>
+        <img id="imagePreview" src="@Url.Content(Model.AircraftImagePath)" alt="Aircraft Image"
+             style="width: 200px; max-width:100%; height:auto; display: @(string.IsNullOrEmpty(Model.AircraftImagePath) ? "none" : "block");" />
+    </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find the input with the correct ID for Aircrafts
+            const fileInput = document.getElementById("AircraftImageFile");
+            if (fileInput) {
+                fileInput.addEventListener("change", function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (loadEvent) {
+                            const previewImage = document.getElementById("imagePreview");
+                            if (previewImage) {
+                                previewImage.src = loadEvent.target.result;
+                                previewImage.style.display = "block";
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -11,7 +11,7 @@ namespace FlyTickets2025.web.Data.Entities
         public string? Name { get; set; } // e.g., "Lisboa", "New York" 
 
         [Required]
-        [Display(Name = "Nome do Aeroporto")]
+        [Display(Name = "Airport Name")]
         public string? AirportName { get; set; }
 
         [Required]

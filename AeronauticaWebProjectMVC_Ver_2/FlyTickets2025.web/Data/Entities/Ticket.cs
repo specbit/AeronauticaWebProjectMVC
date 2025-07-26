@@ -14,11 +14,6 @@ namespace FlyTickets2025.web.Data.Entities
     }
     public class Ticket : IEntity
     {
-        public Ticket()
-        {
-            
-        }
-
         public int Id { get; set; }
 
         // Foreign Key to the Flight
@@ -47,7 +42,6 @@ namespace FlyTickets2025.web.Data.Entities
         [Required]
         public PassengerType PassengerType { get; set; } // Uses the enum
 
-        // Use a simple bool, or derive availability from the existence of a ticket for that seat
         // "devendo depois de escolhido, ficar indisponível para os próximos compradores." 
         public bool IsBooked { get; set; } // Could be set to true upon purchase.
 
