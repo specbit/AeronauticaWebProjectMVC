@@ -84,25 +84,36 @@
                         @* Since this view is protected by [Authorize(Roles = "Cliente")],
                            we know the user is authenticated and is a "Cliente",
                            so a direct "Buy Ticket" link is appropriate. *@
-                <a asp-controller="Tickets" asp-action="Create" asp-route-flightId="@item.Id" class="btn btn-success btn-sm">Buy Ticket</a>
-                </td>
-            </tr>
-}
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Tickets" asp-action="Create" asp-route-flightId="@item.Id" class="btn btn-success btn-sm">
+                                Buy Ticket
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-success btn-sm">
+                                Buy Ticket
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
         </tbody>
-</table>
+    </table>
 }
 @* Conditional messages for no flights found or initial state *@
 else if (Model != null && (Model.DepartureDate.HasValue || Model.OriginCityId.HasValue || Model.DestinationCityId.HasValue))
 {
-<div class="alert alert-warning mt-3" role="alert">
-    No flights found matching your criteria.
-</div>
+    <div class="alert alert-warning mt-3" role="alert">
+        No flights found matching your criteria.
+    </div>
 }
 else
 {
-<div class="alert alert-info mt-3" role="alert">
-    Enter your desired flight details to search.
-</div>
+    <div class="alert alert-info mt-3" role="alert">
+        Enter your desired flight details to search.
+    </div>
 }
 
 @section Scripts {

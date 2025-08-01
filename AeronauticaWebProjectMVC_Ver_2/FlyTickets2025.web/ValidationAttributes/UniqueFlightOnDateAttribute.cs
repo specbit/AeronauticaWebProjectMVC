@@ -1,10 +1,9 @@
 ﻿using FlyTickets2025.web.Data;
-using FlyTickets2025.web.Data.Entities;
 using FlyTickets2025.web.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
+namespace FlyTickets2025.Web.ValidationAttributes 
 {
     public class UniqueFlightOnDateAttribute : ValidationAttribute
     {

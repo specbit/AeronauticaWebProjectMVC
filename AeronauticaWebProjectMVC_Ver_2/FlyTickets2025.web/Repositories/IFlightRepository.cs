@@ -12,7 +12,9 @@ namespace FlyTickets2025.web.Repositories
         Task<IEnumerable<Flight>> GetAllFlightsAsync();
         Task<IEnumerable<Flight>> SearchFlightsAsync(int? originCityId, int? destinationCityId, DateTime? departureDate);
         Task<IEnumerable<Flight>> SearchFlightsAsync();
-
-        Task<Flight> CreateAsync(Flight entity);
+        //new Task<Flight> CreateAsync(Flight entity);
+        Task<bool> IsAircraftBookedForPeriodAsync(int aircraftId, DateTime newDeparture, DateTime newArrival);
+        Task<IEnumerable<Aircraft>> GetAvailableAircraftForFlightAsync(int flightId);
+        Task<bool> HasAssociatedTicketsOrSeatsAsync(int flightId);
     }
 }

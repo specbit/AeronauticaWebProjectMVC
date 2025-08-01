@@ -23,10 +23,11 @@ namespace FlyTickets2025.web.Repositories
             return await _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
             await SaveAllAsync(); // Save immediately after create
+            return entity; // Return the created entity
         }
 
         public async Task UpdateAsync(T entity)

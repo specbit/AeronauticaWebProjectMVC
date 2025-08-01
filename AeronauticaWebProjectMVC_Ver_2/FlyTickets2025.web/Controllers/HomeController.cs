@@ -15,7 +15,17 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View();
+        if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Administrador") || User.IsInRole("Funcionário"))
+            {
+                // For Admins and Employees, show the dashboard view.
+                return View();
+            }
+        }
+
+        // For Clients and anonymous users, redirect to the public catalog.
+        return RedirectToAction("HomeCatalog", "Flights");
     }
 
     public IActionResult Privacy()

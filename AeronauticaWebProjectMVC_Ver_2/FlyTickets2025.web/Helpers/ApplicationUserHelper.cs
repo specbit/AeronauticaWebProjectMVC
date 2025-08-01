@@ -1,5 +1,6 @@
 ﻿using FlyTickets2025.web.Data.Entities;
 using FlyTickets2025.web.Models;
+using FlyTickets2025.web.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -11,12 +12,14 @@ namespace FlyTickets2025.web.Helpers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ITicketRepository _ticketRepository;
 
-        public ApplicationUserHelper(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public ApplicationUserHelper(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ITicketRepository ticketRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _ticketRepository = ticketRepository;
         }
 
         public async Task<IdentityResult> AddUserAsync(ApplicationUser user, string password)
@@ -83,9 +86,33 @@ namespace FlyTickets2025.web.Helpers
             return await _userManager.Users.ToListAsync();
         }
 
+        /// Get user by ClaimsPrincipal
         public async Task<ApplicationUser?> GetUserByIdAsync(ClaimsPrincipal principal)
         {
             return await _userManager.GetUserAsync(principal);
+        }
+
+        /// Get user by ID
+        public async Task<ApplicationUser?> FindUserByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        /// Get users in a specific role
+        public async Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(string roleName)
+        {
+            return await _userManager.GetUsersInRoleAsync(roleName);
+        }
+
+        /// Get roles of a specific user
+        public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user)
+        {
+            return await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<bool> HasAssociatedTicketsAsync(string userId)
+        {
+            return await _ticketRepository.HasTicketsForUserAsync(userId);
         }
     }
 }

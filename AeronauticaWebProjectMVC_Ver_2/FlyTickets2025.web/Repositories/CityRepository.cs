@@ -27,5 +27,10 @@ namespace FlyTickets2025.web.Repositories
             // This directly gets all cities without eager loading relationships.
             return await _context.Cities.AsNoTracking().ToListAsync();
         }
+
+        public async Task<bool> HasAssociatedFlightsAsync(int cityId)
+        {
+            return await _context.Flights.AnyAsync(f => f.OriginCityId == cityId || f.DestinationCityId == cityId);
+        }
     }
 }

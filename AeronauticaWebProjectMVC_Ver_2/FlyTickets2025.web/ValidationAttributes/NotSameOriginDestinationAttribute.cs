@@ -22,7 +22,7 @@ namespace FlyTickets2025.Web.ValidationAttributes
             // We also check against 0 as often 0 is the default unselected value for int dropdowns.
             if (flight.OriginCityId == 0 || flight.DestinationCityId == 0 || flight.OriginCityId == flight.DestinationCityId)
             {
-                return new ValidationResult(ErrorMessage ?? "Origem e Destino não podem ser a mesma cidade.");
+                return new ValidationResult(ErrorMessage ?? "Origin and Destiny can't be the same.");
             }
 
             return ValidationResult.Success;

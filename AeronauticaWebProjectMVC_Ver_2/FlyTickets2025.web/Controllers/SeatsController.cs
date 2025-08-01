@@ -1,6 +1,7 @@
-﻿using FlyTickets2025.web.Data;
-using FlyTickets2025.web.Data.Entities;
+﻿using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,30 +12,37 @@ namespace FlyTickets2025.web.Controllers
 {
     public class SeatsController : Controller
     {
-        //private readonly ApplicationDbContext _context;
         private readonly ISeatRepository _seatsRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IFlightRepository _flightsRepository;
 
 
         public SeatsController(
-            ISeatRepository seatsRepository, 
-            IAircraftRepository aircraftRepository, 
+            ISeatRepository seatsRepository,
+            IAircraftRepository aircraftRepository,
             IFlightRepository flightsRepository)
         {
-            //_context = context;
             _seatsRepository = seatsRepository;
             _aircraftRepository = aircraftRepository;
             _flightsRepository = flightsRepository;
         }
 
-        // GET: Seats
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(SeatSearchViewModel model)
         {
-            //var applicationDbContext = _context.Seats.Include(s => s.AircraftModel).Include(s => s.Flight);
-            //return View(await applicationDbContext.ToListAsync());
+            var flights = await _flightsRepository.GetAllAsync();
+            model.Flights = new SelectList(flights, "Id", "FlightNumber", model.FlightId);
 
-            return View(await _seatsRepository.GetAllSeatsWithRelatedEntitiesAsync()); // Using repository pattern
+            if (model.FlightId.HasValue && model.FlightId.Value > 0)
+            {
+                model.Seats = await _seatsRepository.GetSeatsByFlightIdAsync(model.FlightId.Value);
+            }
+            else
+            {
+                model.Seats = new List<Seat>();
+                model.FlightId = null;
+            }
+
+            return View(model);
         }
 
         // GET: Seats/Details/5
@@ -94,7 +102,7 @@ namespace FlyTickets2025.web.Controllers
                 // Using repository pattern, replace the above lines with:
                 seat.IsAvailableForSale = true; // Ensure the seat is available for sale by default
                 await _seatsRepository.CreateAsync(seat);
-                //await _seatsRepository.SaveAllAsync(); // No need to call SaveAllAsync here, as CreateAsync should handle it internally
+                await _seatsRepository.SaveAllAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -219,21 +227,56 @@ namespace FlyTickets2025.web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //var seat = await _context.Seats.FindAsync(id);
-            //if (seat != null)
-            //{
-            //    _context.Seats.Remove(seat);
-            //}
+            // Simulate an unexpected error for testing purposes (remove in production)
+            //throw new InvalidOperationException("Simulated unexpected error."); // <-- ADD THIS LINE for TEST OnlY
 
-            //await _context.SaveChangesAsync();
+            // Get the seat by ID using the repository
             var seat = await _seatsRepository.GetByIdAsync(id);
-            if (seat != null)
+
+            if (seat == null)
             {
-                await _seatsRepository.DeleteAsync(seat);
-                //await _seatsRepository.SaveAllAsync(); // No need to call SaveAllAsync here, as DeleteAsync should handle it internally
+                return NotFound();
             }
 
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                // --- Business Rule Check: Check if the seat has tickets BEFORE attempting deletion ---
+                bool hasTickets = await _seatsRepository.HasAssociatedTicketsAsync(id);
+                if (hasTickets)
+                {
+                    // Set a specific message for this scenario
+                    TempData["SpecificErrorMessage"] = "This seat has booked Tickets, cannot be deleted.";
+                    // Redirect to the new, specific page for delete restrictions
+                    return RedirectToAction("DeleteRestricted", "ErrorHandler");
+                }
+                // --- End Business Rule Check ---
+
+                // If no tickets, proceed with deletion
+                await _seatsRepository.DeleteAsync(seat);
+                //await _seatsRepository.SaveAllAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex) // Catches database constraint violations if the above check was bypassed or failed
+            {
+                // TODO: Log the exception (if you have a logger set up)
+                // Log the full exception for debugging (VERY IMPORTANT in a real app)
+                // _logger.LogError(ex, "Error deleting seat {SeatId} due to DB constraint.", id);
+
+                // This catch block would execute if the database's FK constraint was violated.
+                // It's a fallback for the explicit check above.
+                TempData["SpecificErrorMessage"] = "It was not possible to delete the seat due to a data restriction in the system.";
+                return RedirectToAction("DeleteRestricted", "ErrorHandler");
+            }
+            catch (Exception ex) // Catch any other truly unexpected errors
+            {
+                // Log the exception
+                // _logger.LogError(ex, "An unexpected error occurred while deleting seat {SeatId}.", id);
+
+                // For truly unexpected errors, we still redirect to the generic 500 page
+                TempData["CustomErrorMessage"] = "An unexpected error occurred while deleting the seat. Please, try again.";
+                return RedirectToAction("Error", "ErrorHandler"); // Redirect to the GENERIC 500 error page
+            }
         }
 
         // This action will be called by JavaScript to get the AircraftId and Model for a selected FlightId
@@ -255,10 +298,5 @@ namespace FlyTickets2025.web.Controllers
             // (e.g., if GetFlightWithRelatedEntitiesByIdAsync didn't include it, or data is inconsistent).
             return Json(new { aircraftId = flight.Aircraft?.Id, aircraftModel = flight.Aircraft?.Model });
         }
-
-        //private bool SeatExists(int id)
-        //{
-        //    return _context.Seats.Any(e => e.Id == id);
-        //}
     }
 }

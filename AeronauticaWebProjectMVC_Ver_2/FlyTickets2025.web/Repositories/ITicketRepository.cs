@@ -12,5 +12,7 @@ namespace FlyTickets2025.web.Repositories
         Task<bool> TicketExistsAsync(int id);
         Task<IEnumerable<Ticket>> GetAllWithUsersFlightsAndSeatsAsync();
         Task<Ticket> GetByIdWithUsersFlightsAndSeatsAsync(int id);
+        Task<bool> HasTicketsForUserAsync(string userId);
+        Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(string userId);
     }
 }

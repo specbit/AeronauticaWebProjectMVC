@@ -68,5 +68,30 @@ namespace FlyTickets2025.web.Repositories
                 .Include(t => t.Seat)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public async Task<bool> HasTicketsForUserAsync(string userId)
+        {
+            return await _context.Tickets.AnyAsync(t => t.ApplicationUserId == userId);
+        }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(string userId)
+        {
+            // The query will get all tickets and then filter them in the database.
+            return await _context.Tickets
+                // Use a 'Where' clause to filter the tickets by the user's ID.
+                // Assuming your Ticket entity has a foreign key property named ApplicationUserId.
+                .Where(t => t.ApplicationUserId == userId)
+
+                // Include related entities to avoid null reference exceptions in your view.
+                // The 'Include' statement ensures that Flight and Seat data is loaded with each ticket.
+                .Include(t => t.Flight)
+                .Include(t => t.Seat)
+
+                // You can add an OrderBy clause to sort the tickets, for example, by purchase date.
+                .OrderByDescending(t => t.PurchaseDate)
+
+                // Execute the query and return the list of tickets.
+                .ToListAsync();
+        }
     }
 }

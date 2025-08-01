@@ -1,0 +1,92 @@
+﻿ @model object  //Or dynamic, or no model
+
+@{
+    ViewData["Title"] = "Operação Restrita";
+    Layout = null; // IMPORTANT: Standalone page
+}
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FlyTickets2025.web</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> @* Assuming Bootstrap *@ 
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fefefe;
+            color: #343a40;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .denied-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            border-left: 5px solid #ffc107; /* Warning color */
+        }
+
+        .denied-container h1 {
+            font-size: 2.5em;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .denied-container h2 {
+            font-size: 1.6em;
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+
+        .denied-container p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn-home {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="denied-container">
+        <h1>Operação Restrita!</h1>
+        <h2>@ViewBag.SpecificDeniedMessage</h2> @*-- Dynamic message --*@
+
+        <p>
+            Your delete request could not be completed. This action is restricted due to associated data.
+        </p>
+        <p>
+            Please, check if there are tickets linked to this seat before trying to delete it.
+        </p>
+
+        <a asp-controller="Home" asp-action="Index" class="btn-home">Back to Home Page</a>
+    </div>
+
+</body>
+</html>

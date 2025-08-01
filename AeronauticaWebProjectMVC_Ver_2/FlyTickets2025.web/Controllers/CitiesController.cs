@@ -1,21 +1,23 @@
-﻿using FlyTickets2025.web.Data;
-using FlyTickets2025.web.Data.Entities;
+﻿using FlyTickets2025.web.Data.Entities;
+using FlyTickets2025.web.Helpers;
 using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlyTickets2025.web.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class CitiesController : Controller
     {
-        //private readonly ApplicationDbContext _context;
         private readonly ICityRepository _cityRepository;
+        private readonly IConverterHelper _converterHelper;
 
-        public CitiesController(ICityRepository cityRepository)
+        public CitiesController(ICityRepository cityRepository, IConverterHelper converterHelper)
         {
-            //_context = context;
             _cityRepository = cityRepository;
+            _converterHelper = converterHelper;
         }
 
         // GET: Cities
@@ -72,7 +74,7 @@ namespace FlyTickets2025.web.Controllers
                         cityViewModel.FlagImageFile.FileName);
 
                     // Save the uploaded file to the specified path
-                    using (var stream = new FileStream(path, FileMode.Create)) 
+                    using (var stream = new FileStream(path, FileMode.Create))
                     {
                         await cityViewModel.FlagImageFile.CopyToAsync(stream);
                     }
@@ -82,29 +84,19 @@ namespace FlyTickets2025.web.Controllers
                 }
 
                 // Create a new City entity from the view model
-                var city = this.ToCityEntity(cityViewModel, path);
+                var city = _converterHelper.ToCityEntity(cityViewModel, path, true);
 
                 //_context.Add(city);
                 //await _context.SaveChangesAsync();
                 await _cityRepository.CreateAsync(city);
+
                 await _cityRepository.SaveAllAsync(); // Ensure changes are saved
+
                 return RedirectToAction(nameof(Index));
             }
 
             // If model state is invalid, return the view with the current model
             return View(cityViewModel);
-        }
-
-        private City ToCityEntity(CityViewModel cityViewModel, string path)
-        {
-            return new City
-            {
-                Id = cityViewModel.Id,
-                Name = cityViewModel.Name,
-                AirportName = cityViewModel.AirportName,
-                Country = cityViewModel.Country,
-                FlagImagePath = path // Set the path to the uploaded image
-            };
         }
 
         // GET: Cities/Edit/5
@@ -124,21 +116,9 @@ namespace FlyTickets2025.web.Controllers
             }
 
             // Convert City to CityViewModel for editing
-            var cityViewModel= ToCityViewModel(city);
+            var cityViewModel = _converterHelper.ToCityViewModel(city);
 
             return View(cityViewModel);
-        }
-
-        private static CityViewModel? ToCityViewModel(City city)
-        {
-            return new CityViewModel
-            {
-                Id = city.Id,
-                Name = city.Name,
-                AirportName = city.AirportName,
-                Country = city.Country,
-                FlagImagePath = city.FlagImagePath
-            };
         }
 
         // POST: Cities/Edit/5
@@ -182,13 +162,12 @@ namespace FlyTickets2025.web.Controllers
                         path = $"~/images/cities/{cityViewModel.FlagImageFile.FileName}";
                     }
 
-                    var city = this.ToCityEntity(cityViewModel, path!);
+                    var city = _converterHelper.ToCityEntity(cityViewModel, path!, true);
 
                     //_context.Update(city);
                     //await _context.SaveChangesAsync();
 
                     await _cityRepository.UpdateAsync(city);
-                    await _cityRepository.SaveAllAsync(); // Ensure changes are saved
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -232,22 +211,26 @@ namespace FlyTickets2025.web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var city = await _cityRepository.GetByIdAsync(id);
+            if (city == null) return NotFound();
 
-            await _cityRepository.DeleteAsync(city);
-            await _cityRepository.SaveAllAsync(); // Ensure changes are saved
+            try
+            {
+                bool hasFlights = await _cityRepository.HasAssociatedFlightsAsync(id);
+                if (hasFlights)
+                {
+                    TempData["SpecificErrorMessage"] = "It is not possible to delete this city because it has associated flights.";
+                    return RedirectToAction("DeleteRestricted", "ErrorHandler");
+                }
 
-            //if (city != null)
-            //{
-            //    _context.Cities.Remove(city);
-            //}
-
-            //await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                await _cityRepository.DeleteAsync(city);
+                await _cityRepository.SaveAllAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["SpecificErrorMessage"] = "It was not possible to delete the city due to a data restriction in the system.";
+                return RedirectToAction("DeleteRestricted", "ErrorHandler");
+            }
         }
-
-        //private bool CityExists(int id)
-        //{
-        //    return _context.Cities.Any(e => e.Id == id);
-        //}
     }
 }

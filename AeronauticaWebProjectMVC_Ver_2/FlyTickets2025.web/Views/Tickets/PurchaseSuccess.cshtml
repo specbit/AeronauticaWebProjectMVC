@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Pagamento Efetuado";
+}
+
+<div class="text-center mt-5">
+    <h1 class="text-success mb-4">Pagamento Efetuado com Sucesso!</h1>
+    <p class="lead">Seu bilhete foi processado com sucesso. Obrigado por comprar com a FlyTickets!</p>
+
+    @* Add Button to print Confirrmation Ticket *@
+
+    <a asp-controller="Flights" asp-action="HomeCatalog" class="btn btn-primary mt-4 px-4 py-2">
+        Ir para Catálogo de Voos
+    </a>
+</div>

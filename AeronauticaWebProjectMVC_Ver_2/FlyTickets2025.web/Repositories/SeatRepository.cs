@@ -1,6 +1,5 @@
 ﻿using FlyTickets2025.web.Data;
 using FlyTickets2025.web.Data.Entities;
-using FlyTickets2025.Web.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlyTickets2025.web.Repositories
@@ -20,7 +19,7 @@ namespace FlyTickets2025.web.Repositories
         public async Task<IEnumerable<Seat>> GetSeatsByFlightIdAsync(int flightId)
         {
             return await _context.Seats
-                                 .Where(s => s.FlightId == flightId && s.IsAvailableForSale == true)
+                                 .Where(s => s.FlightId == flightId)
                                  .Include(s => s.Flight) // Include the related Flight
                                  .Include(s => s.AircraftModel) // Include the related AircraftModel
                                  .AsNoTracking()
@@ -67,7 +66,7 @@ namespace FlyTickets2025.web.Repositories
             var flight = await _flightRepository.GetFlightWithRelatedEntitiesByIdAsync(flightId);
 
             if (flight == null || flight.Aircraft == null)
-                throw new Exception("Voo ou aeronave não encontrados.");
+                throw new Exception("Flight or Aircraft not Found.");
 
             int totalSeats = flight.Aircraft.TotalSeats;
             int executiveSeatsCount = (int)Math.Floor(totalSeats * (percentageOfExecutiveSeats / 100m));
@@ -75,18 +74,18 @@ namespace FlyTickets2025.web.Repositories
 
             var seats = new List<Seat>();
 
-            int number = 1;    // número sequencial para os assentos
+            int number = 1;    // sequential number for seats
             while (seats.Count < totalSeats)
             {
-                // Para cada número criamos 4 assentos na sequência: A{n}, A{n+1}, B{n}, B{n+1}
-                // Aqui vamos criar dois "pares" por iteração (4 assentos)
+                // For each number we create 4 seats in sequence: A{n}, A{n+1}, B{n}, B{n+1}
+                // Here we create two "pairs" per iteration (4 seats)
 
                 string[] seatNumbers = {
-            $"A{number}",
-            $"A{number + 1}",
-            $"B{number}",
-            $"B{number + 1}"
-        };
+                    $"A{number}",
+                    $"A{number + 1}",
+                    $"B{number}",
+                    $"B{number + 1}"
+                };
 
                 foreach (var seatNumber in seatNumbers)
                 {
@@ -112,13 +111,19 @@ namespace FlyTickets2025.web.Repositories
                         executiveCreated++;
                 }
 
-                number += 2; // incrementa de 2 em 2 para seguir o padrão (A1, A2, A3, A4...)
+                number += 2; // increment by 2 to follow the pattern (A1, A2, A3, A4...)
             }
 
             _context.Seats.AddRange(seats);
             await _context.SaveChangesAsync();
 
             return seats;
+        }
+
+        public async Task<bool> HasAssociatedTicketsAsync(int seatId)
+        {
+            // This query checks if there are ANY tickets associated with the given seatId
+            return await _context.Tickets.AnyAsync(t => t.SeatId == seatId);
         }
     }
 }

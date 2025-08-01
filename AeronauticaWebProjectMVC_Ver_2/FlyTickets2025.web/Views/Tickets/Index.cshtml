@@ -6,9 +6,10 @@
 
 <h1>Index</h1>
 
-<p>
+@* <p>
     <a asp-action="Create">Create New</a>
 </p>
+ *@
 <table class="table">
     <thead>
         <tr>
@@ -43,41 +44,53 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Flight.FlightNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApplicationUser.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Seat.SeatNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PassengerType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsBooked)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PurchaseDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TicketPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClientName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FlightDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Flight.FlightNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ApplicationUser.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Seat.SeatNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PassengerType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsBooked)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurchaseDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ClientName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FlightDate)
+                </td>
+                <td>
+                    @if (User.IsInRole("Administrador")) @*Via URL (Very messy)*@
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                    else
+                    {
+                        @*Customers can only see Details if desired*@
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    }
+                    @* <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

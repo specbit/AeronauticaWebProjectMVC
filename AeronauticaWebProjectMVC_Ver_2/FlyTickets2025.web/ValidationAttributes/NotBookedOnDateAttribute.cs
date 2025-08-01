@@ -3,7 +3,7 @@ using FlyTickets2025.web.Models;
 using FlyTickets2025.web.Repositories;
 using System.ComponentModel.DataAnnotations;
 
-namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
+namespace FlyTickets2025.Web.ValidationAttributes 
 {
     public class NotBookedOnDateAttribute : ValidationAttribute
     {
@@ -26,7 +26,7 @@ namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
                 return new ValidationResult("Validation context is not a Flight object.");
             }
 
-            // <<< CHANGE START: Get IAircraftRepository from service provider instead of DbContext
+            // Get IAircraftRepository from service provider instead of DbContext
             var aircraftRepository = validationContext.GetService<IAircraftRepository>();
             if (aircraftRepository == null)
             {
@@ -41,7 +41,7 @@ namespace FlyTickets2025.Web.ValidationAttributes // Adjust namespace
                 aircraftId,
                 flight.DepartureTime.Date, // Pass only the date part
                 flight.Id // Pass the current flight's ID (for edit scenarios)
-            ).GetAwaiter().GetResult(); // <<< CHANGE END
+            ).GetAwaiter().GetResult();
 
             if (conflicts)
             {

@@ -20,3 +20,656 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Custom Views/Ticket/Create.cshtml -- Start */
+
+#seatGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.seat-button {
+    padding: 1rem;
+    text-align: center;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+    .seat-button.seat-available {
+        background-color: transparent;
+        color: #007bff;
+        border: 1px solid #007bff;
+        cursor: pointer;
+    }
+
+        .seat-button.seat-available:hover {
+            background-color: #e6f0ff;
+        }
+
+    .seat-button.selected {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .seat-button.seat-unavailable {
+        background-color: #e9ecef;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        cursor: not-allowed;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+    .seat-button.seat-executive {
+        background-color: black;
+        color: white;
+        border: 1px solid #000;
+    }
+
+    .seat-button.seat-economic {
+        background-color: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+    }
+/* Custom Views/Ticket/Create.cshtml -- End */
+
+
+/* Custom 404 Page Styles -- Start */
+@import url(https://fonts.googleapis.com/css?family=Raleway:300,700);
+
+/* This new container class replaces the 'body' selector */
+.error-404-container {
+    width: 100%;
+    background: #48A9E6;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 300;
+    margin: 0;
+    padding: 2rem 0; /* Added some padding for better spacing */
+    overflow: hidden; /* Prevents animations from creating scrollbars */
+    position: relative;
+}
+
+    .error-404-container #title {
+        text-align: center;
+        font-size: 40px;
+        margin-top: 40px;
+        margin-bottom: -40px;
+        position: relative;
+        color: #fff;
+    }
+
+    .error-404-container .circles:after {
+        content: '';
+        display: inline-block;
+        width: 100%;
+        height: 100px;
+        background: #fff;
+        position: absolute;
+        top: -50px;
+        left: 0;
+        transform: skewY(-4deg);
+        -webkit-transform: skewY(-4deg);
+    }
+
+    .error-404-container .circles {
+        background: #fff;
+        text-align: center;
+        position: relative;
+        margin-top: -60px;
+        box-shadow: inset -1px -4px 4px rgba(0,0,0,0.2);
+    }
+
+        .error-404-container .circles p {
+            font-size: 240px;
+            color: #fff;
+            padding-top: 60px;
+            position: relative;
+            z-index: 9;
+            line-height: 100%;
+        }
+
+            .error-404-container .circles p small {
+                font-size: 40px;
+                line-height: 100%;
+                vertical-align: top;
+            }
+
+        .error-404-container .circles .circle.small {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #48A9E6;
+            position: absolute;
+            z-index: 1;
+            top: 80px;
+            left: 50%;
+            animation: 7s smallmove infinite cubic-bezier(1,.22,.71,.98);
+            -webkit-animation: 7s smallmove infinite cubic-bezier(1,.22,.71,.98);
+            animation-delay: 1.2s;
+            -webkit-animation-delay: 1.2s;
+        }
+
+        .error-404-container .circles .circle.med {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #48A9E6;
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 10%;
+            animation: 7s medmove infinite cubic-bezier(.32,.04,.15,.75);
+            -webkit-animation: 7s medmove infinite cubic-bezier(.32,.04,.15,.75);
+            animation-delay: 0.4s;
+            -webkit-animation-delay: 0.4s;
+        }
+
+        .error-404-container .circles .circle.big {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: #48A9E6;
+            position: absolute;
+            z-index: 1;
+            top: 200px;
+            right: 0;
+            animation: 8s bigmove infinite;
+            -webkit-animation: 8s bigmove infinite;
+            animation-delay: 3s;
+            -webkit-animation-delay: 1s;
+        }
+
+/* Keyframes do not need to be changed */
+@-webkit-keyframes smallmove {
+    0% {
+        top: 10px;
+        left: 45%;
+        opacity: 1;
+    }
+
+    25% {
+        top: 300px;
+        left: 40%;
+        opacity: 0.7;
+    }
+
+    50% {
+        top: 240px;
+        left: 55%;
+        opacity: 0.4;
+    }
+
+    75% {
+        top: 100px;
+        left: 40%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 10px;
+        left: 45%;
+        opacity: 1;
+    }
+}
+
+@keyframes smallmove {
+    0% {
+        top: 10px;
+        left: 45%;
+        opacity: 1;
+    }
+
+    25% {
+        top: 300px;
+        left: 40%;
+        opacity: 0.7;
+    }
+
+    50% {
+        top: 240px;
+        left: 55%;
+        opacity: 0.4;
+    }
+
+    75% {
+        top: 100px;
+        left: 40%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 10px;
+        left: 45%;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes medmove {
+    0% {
+        top: 0px;
+        left: 20%;
+        opacity: 1;
+    }
+
+    25% {
+        top: 300px;
+        left: 80%;
+        opacity: 0.7;
+    }
+
+    50% {
+        top: 240px;
+        left: 55%;
+        opacity: 0.4;
+    }
+
+    75% {
+        top: 100px;
+        left: 40%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 0px;
+        left: 20%;
+        opacity: 1;
+    }
+}
+
+@keyframes medmove {
+    0% {
+        top: 0px;
+        left: 20%;
+        opacity: 1;
+    }
+
+    25% {
+        top: 300px;
+        left: 80%;
+        opacity: 0.7;
+    }
+
+    50% {
+        top: 240px;
+        left: 55%;
+        opacity: 0.4;
+    }
+
+    75% {
+        top: 100px;
+        left: 40%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 0px;
+        left: 20%;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes bigmove {
+    0% {
+        top: 0px;
+        right: 4%;
+        opacity: 0.5;
+    }
+
+    25% {
+        top: 100px;
+        right: 40%;
+        opacity: 0.4;
+    }
+
+    50% {
+        top: 240px;
+        right: 45%;
+        opacity: 0.8;
+    }
+
+    75% {
+        top: 100px;
+        right: 35%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 0px;
+        right: 4%;
+        opacity: 0.5;
+    }
+}
+
+@keyframes bigmove {
+    0% {
+        top: 0px;
+        right: 4%;
+        opacity: 0.5;
+    }
+
+    25% {
+        top: 100px;
+        right: 40%;
+        opacity: 0.4;
+    }
+
+    50% {
+        top: 240px;
+        right: 45%;
+        opacity: 0.8;
+    }
+
+    75% {
+        top: 100px;
+        right: 35%;
+          opacity:0.6;
+    }
+
+    100% {
+        top: 0px;
+        right: 4%;
+        opacity: 0.5;
+    }
+}
+/* Custom 404 Page Styles -- End */
+
+/* 403 Forbidden */
+/* Gandalf Animation CSS -- Start */
+
+.gandalf-page {
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    font-family: "Open Sans";
+    font-size: 1.3rem;
+}
+
+    .gandalf-page h1 {
+        font-size: 2.5rem;
+    }
+
+    .gandalf-page .message {
+        max-width: 700px;
+        margin: 5rem auto 0 auto;
+    }
+
+@keyframes floating {
+    to {
+        top: 1.5rem;
+    }
+}
+
+.gandalf {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    top: 1rem;
+    animation: floating 1s infinite alternate ease-in-out;
+}
+
+    .gandalf div {
+        position: absolute;
+    }
+
+    .gandalf::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 400px;
+        height: 400px;
+        background-color: #1a2130;
+        border-radius: 50%;
+    }
+
+    .gandalf .fireball {
+        bottom: -10px;
+        left: 50px;
+        width: 300px;
+        height: 100px;
+        border-radius: 50%;
+        background: radial-gradient(#EFAC41, #DE8531, #6C1305, black);
+        border: 5px solid #000;
+    }
+
+    .gandalf .skirt {
+        bottom: 50px;
+        left: 100px;
+        border-bottom: 230px solid #ededed;
+        border-left: 100px solid transparent;
+        border-right: 100px solid transparent;
+        filter: drop-shadow(0 0 6px #d5d5d5);
+    }
+
+        .gandalf .skirt::before {
+            content: "";
+            position: absolute;
+            background-color: #ededed;
+            width: 100px;
+            height: 21px;
+            top: 230px;
+            left: 0px;
+            border-bottom-right-radius: 180%;
+            border-bottom-left-radius: 100%;
+        }
+
+        .gandalf .skirt::after {
+            content: "";
+            position: absolute;
+            background-color: #ededed;
+            width: 100px;
+            height: 28px;
+            top: 230px;
+            left: -100px;
+            border-bottom-right-radius: 80%;
+            border-bottom-left-radius: 180%;
+        }
+
+    .gandalf .sleeves::before,
+    .gandalf .sleeves::after {
+        content: "";
+        position: absolute;
+        border-bottom: 70px solid #ededed;
+        filter: drop-shadow(0 0 6px #d5d5d5);
+    }
+
+    .gandalf .sleeves::before {
+        top: 130px;
+        left: 191px;
+        border-left: 100px solid transparent;
+        border-right: 40px solid transparent;
+        transform: rotate(-34deg);
+    }
+
+    .gandalf .sleeves::after {
+        top: 127px;
+        left: 70px;
+        border-left: 40px solid transparent;
+        border-right: 100px solid transparent;
+        transform: rotate(41deg);
+    }
+
+    .gandalf .shoulders {
+        background-color: #ededed;
+        border-radius: 50%;
+        width: 100px;
+        height: 130px;
+        left: 150px;
+        top: 120px;
+    }
+
+        .gandalf .shoulders .hand {
+            width: 33px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: #ffd8ad;
+            top: -6px;
+        }
+
+        .gandalf .shoulders .left {
+            left: -70px;
+            transform: rotate(-20deg);
+        }
+
+            .gandalf .shoulders .left::after {
+                content: "";
+                position: absolute;
+                background-color: #e6e6e6;
+                width: 126px;
+                height: 8px;
+                border-radius: 4px;
+                transform: rotate(-105deg);
+                transform-origin: bottom;
+                top: -48px;
+                left: -56px;
+            }
+
+        .gandalf .shoulders .right {
+            right: -70px;
+            transform: rotate(20deg);
+        }
+
+            .gandalf .shoulders .right::after {
+                content: "";
+                position: absolute;
+                background-color: #bf5507;
+                width: 250px;
+                height: 5px;
+                border-radius: 2.5px;
+                transform: rotate(-78deg);
+                transform-origin: left;
+                bottom: -100px;
+                left: 0;
+            }
+
+    .gandalf .head {
+        width: 80px;
+        height: 90px;
+        top: 80px;
+        left: 160px;
+        background-color: #ffd8ad;
+        border-radius: 50%;
+    }
+
+        .gandalf .head::before,
+        .gandalf .head::after {
+            content: "";
+            position: absolute;
+            background-color: #000;
+        }
+
+        .gandalf .head::before {
+            width: 13px;
+            height: 5px;
+            border-radius: 3px;
+            top: 42px;
+            left: 22px;
+            transform: rotate(19deg);
+        }
+
+        .gandalf .head::after {
+            width: 13px;
+            height: 5px;
+            border-radius: 3px;
+            top: 42px;
+            right: 22px;
+            transform: rotate(-19deg);
+        }
+
+        .gandalf .head .hair {
+            width: 70px;
+            height: 30px;
+            background-color: #c2beb5;
+            border-radius: 50%;
+            top: 0px;
+            left: 5px;
+        }
+
+            .gandalf .head .hair::before,
+            .gandalf .head .hair::after {
+                content: "";
+                position: absolute;
+                background-color: #c2beb5;
+                filter: drop-shadow(2px 5px 0 #ababa2);
+            }
+
+            .gandalf .head .hair::before {
+                top: 13px;
+                left: -16px;
+                width: 25px;
+                height: 100px;
+                border-top-left-radius: 34px;
+                border-top-right-radius: 15px;
+                border-bottom-left-radius: 100px;
+                border-bottom-right-radius: 20px;
+                transform: rotate(8deg);
+            }
+
+            .gandalf .head .hair::after {
+                top: 13px;
+                right: -16px;
+                width: 25px;
+                height: 100px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 34px;
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 100px;
+                transform: rotate(-10deg);
+            }
+
+        .gandalf .head .beard {
+            top: 64px;
+            left: 5px;
+            border-top: 80px solid #c2beb5;
+            border-left: 35px solid transparent;
+            border-right: 35px solid transparent;
+            border-radius: 30px;
+            filter: drop-shadow(2px 5px 0 #ababa2);
+        }
+
+            .gandalf .head .beard::before {
+                content: "";
+                position: absolute;
+                background-color: pink;
+                width: 20px;
+                height: 5px;
+                border-radius: 40%;
+                top: -70px;
+                left: -9px;
+            }
+
+/* Gandalf Animation CSS -- End */
+
+/* Dashboard Picture -- Start */
+
+.dashboard-container {
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center center;
+    border-radius: 10px;
+}
+
+/* Zen Rock Garden background for Admins */
+.admin-dashboard-bg {
+    background-image: url('https://images.pexels.com/photos/228094/pexels-photo-228094.jpeg');
+}
+
+/* Zen Bamboo Forest background for Employees */
+.employee-dashboard-bg {
+    background-image: url('https://images.pexels.com/photos/1287460/pexels-photo-1287460.jpeg');
+}
+
+.dashboard-content {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: 10px;
+    text-shadow: 2px 2px 4px #000000;
+
+}/* Dashboard Picture -- End */

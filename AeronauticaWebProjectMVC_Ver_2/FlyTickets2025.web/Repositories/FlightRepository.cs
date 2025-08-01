@@ -1,21 +1,20 @@
-﻿// Repositories/FlightsRepository.cs
-using FlyTickets2025.web.Data;
+﻿using FlyTickets2025.web.Data;
 using FlyTickets2025.web.Data.Entities;
 using FlyTickets2025.web.Repositories;
-using Microsoft.EntityFrameworkCore; // Para .Include(), .AsNoTracking(), .AnyAsync(), .FirstOrDefaultAsync(), .ToListAsync()
+using Microsoft.EntityFrameworkCore; // (PT)Para .Include(), .AsNoTracking(), .AnyAsync(), .FirstOrDefaultAsync(), .ToListAsync()
 
 namespace FlyTickets2025.Web.Repositories
 {
     public class FlightRepository : GenericRepository<Flight>, IFlightRepository
     {
-        private readonly ApplicationDbContext _context; // Referência ao DbContext para queries específicas (como Includes)
+        private readonly ApplicationDbContext _context; // (PT)Referência ao DbContext para queries específicas (como Includes)
 
-        public FlightRepository(ApplicationDbContext context) : base(context) // Passa o contexto para o construtor da classe base (GenericRepository)
+        public FlightRepository(ApplicationDbContext context) : base(context) // (PT)Passa o contexto para o construtor da classe base (GenericRepository)
         {
-            _context = context; // Armazena o contexto para uso em métodos específicos
+            _context = context; // (PT)Armazena o contexto para uso em métodos específicos
         }
 
-        // Implementação do método para verificar se o número do voo é único numa data
+        // (PT)Implementação do método para verificar se o número do voo é único numa data
         // Retorna true se houver conflito (não único), false se for único.
         public async Task<bool> IsFlightNumberUniqueOnDateAsync(string flightNumber, DateTime date, int? currentFlightId = null)
         {
@@ -44,16 +43,17 @@ namespace FlyTickets2025.Web.Repositories
                 .AsNoTracking(); // Retorna um IQueryable não rastreado para listagens (leitura)
         }
 
-        // Implementação para obter um único voo com as suas entidades relacionadas por ID
+        // Implementation for getting a single flight with its related entities by ID
         public async Task<Flight?> GetFlightWithRelatedEntitiesByIdAsync(int id)
         {
             return await _context.Flights
                 .Include(f => f.Aircraft)
                 .Include(f => f.DestinationCity)
                 .Include(f => f.OriginCity)
-                .Include(f => f.Seats) // Inclui os assentos se necessário
-                .AsNoTracking() // Não rastreia a entidade
-                .FirstOrDefaultAsync(f => f.Id == id); // Encontra o primeiro que corresponde ao ID
+                .Include(f => f.Tickets) // Includes tickets if necessary
+                .Include(f => f.Seats) // Includes seats if necessary
+                .AsNoTracking() // No tracking for Entity Framework Core
+                .FirstOrDefaultAsync(f => f.Id == id); // Finds the first that matches the ID
         }
         public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
         {
@@ -66,7 +66,7 @@ namespace FlyTickets2025.Web.Repositories
             var query = _context.Flights
                 .Include(f => f.Aircraft)
                 .Include(f => f.OriginCity)
-                .Include(f => f.DestinationCity)
+                .Include(f => f.DestinationCity).Where(x => x.DepartureTime >= DateTime.Now)
                 .AsNoTracking(); // Good for read-only search results
 
             // Apply filters based on provided parameters
@@ -99,7 +99,7 @@ namespace FlyTickets2025.Web.Repositories
             var query = _context.Flights
                 .Include(f => f.Aircraft)
                 .Include(f => f.OriginCity)
-                .Include(f => f.DestinationCity)
+                .Include(f => f.DestinationCity).Where(x => x.DepartureTime >= DateTime.Now)
                 .AsNoTracking(); // Good for read-only search results
 
             // Order the results, for example, by departure time
@@ -109,12 +109,128 @@ namespace FlyTickets2025.Web.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<Flight> CreateAsync(Flight entity)
+        public new async Task<Flight> CreateAsync(Flight entity)
         {
             entity.SetEstimateArrival();
             await _context.Flights.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity; // Return the created flight
+        }
+
+        //public async Task<bool> IsAircraftBookedForPeriodAsync(int aircraftId, DateTime newDeparture, DateTime newArrival)
+        //{
+        //    // Checks if any other flight for the same aircraft has an overlapping time period.
+        //    return await _context.Flights
+        //        .AnyAsync(f =>
+        //            f.AircraftId == aircraftId &&
+        //            f.DepartureTime < newArrival &&
+        //            f.EstimateArrival > newDeparture
+        //        );
+        //}
+        public async Task<bool> IsAircraftBookedForPeriodAsync(int aircraftId, DateTime newDeparture, DateTime newArrival)
+        {
+            // 1. Fetch all flights for this specific aircraft into memory.
+            var existingFlightsForAircraft = await _context.Flights
+                .Where(f => f.AircraftId == aircraftId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // 2. Now, perform the overlap check in C# memory, where the calculated
+            //    arrival time can be used without causing an error.
+            return existingFlightsForAircraft.Any(f =>
+                f.DepartureTime < newArrival &&
+                f.DepartureTime.AddMinutes(f.DurationMinutes) > newDeparture
+            );
+        }
+
+        //public async Task<IEnumerable<Aircraft>> GetAvailableAircraftForFlightAsync(int flightId)
+        //{
+        //    var currentFlight = await _context.Flights
+        //        .Include(f => f.Tickets)
+        //        .AsNoTracking()
+        //        .FirstOrDefaultAsync(f => f.Id == flightId);
+
+        //    if (currentFlight == null) return new List<Aircraft>();
+
+        //    int ticketsSold = currentFlight.Tickets.Count;
+        //    var currentFlightArrival = currentFlight.DepartureTime.AddMinutes(currentFlight.DurationMinutes);
+
+        //    // 1. Fetch all other flights from the database into memory
+        //    var allOtherFlights = await _context.Flights
+        //        .Where(f => f.Id != flightId)
+        //        .AsNoTracking()
+        //        .ToListAsync();
+
+        //    // 2. Now, filter the list in C# to find busy aircraft
+        //    var busyAircraftIds = allOtherFlights
+        //        .Where(f =>
+        //            f.DepartureTime.AddMinutes(f.DurationMinutes).AddHours(24) > currentFlight.DepartureTime &&
+        //            f.DepartureTime < currentFlightArrival.AddHours(24))
+        //        .Select(f => f.AircraftId)
+        //        .Distinct()
+        //        .ToList();
+
+        //    // 3. Return only the aircraft that have enough seats AND are not busy
+        //    return await _context.Aircrafts
+        //        .AsNoTracking()
+        //        .Where(a => a.TotalSeats >= ticketsSold && !busyAircraftIds.Contains(a.Id))
+        //        .ToListAsync();
+        //}
+        public async Task<IEnumerable<Aircraft>> GetAvailableAircraftForFlightAsync(int flightId)
+        {
+            var currentFlight = await _context.Flights
+                .Include(f => f.Tickets)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f => f.Id == flightId);
+
+            if (currentFlight == null) return new List<Aircraft>();
+
+            int ticketsSold = currentFlight.Tickets.Count;
+            var currentFlightArrival = currentFlight.DepartureTime.AddMinutes(currentFlight.DurationMinutes);
+
+            // 1. Fetch all other flights from the database into memory.
+            var allOtherFlights = await _context.Flights
+                .Where(f => f.Id != flightId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // 2. Filter the list in C# to find which aircraft are busy.
+            var busyAircraftIds = allOtherFlights
+                .Where(f =>
+                {
+                    var otherFlightArrival = f.DepartureTime.AddMinutes(f.DurationMinutes);
+
+                    // Check if the other flight starts less than 24 hours after our current flight ends.
+                    bool startsTooSoon = f.DepartureTime > currentFlightArrival &&
+                                         f.DepartureTime < currentFlightArrival.AddHours(24);
+
+                    // Check if the other flight ends less than 24 hours before our current flight starts.
+                    bool endsTooLate = currentFlight.DepartureTime > otherFlightArrival &&
+                                       currentFlight.DepartureTime < otherFlightArrival.AddHours(24);
+
+                    return startsTooSoon || endsTooLate;
+                })
+                .Select(f => f.AircraftId)
+                .Distinct()
+                .ToList();
+
+            // 3. Return only the aircraft that have enough seats AND are not in the busy list.
+            return await _context.Aircrafts
+                .AsNoTracking()
+                .Where(a => a.TotalSeats >= ticketsSold && !busyAircraftIds.Contains(a.Id))
+                .ToListAsync();
+        }
+
+        public async Task<bool> HasAssociatedTicketsOrSeatsAsync(int flightId)
+        {
+            // Assuming your Ticket entity has a direct FlightId foreign key.
+            return await _context.Tickets.AnyAsync(t => t.FlightId == flightId);
+
+            // If Ticket only links to SeatId, and Seat links to FlightId,
+            // you'd use a more complex check like:
+            // return await _context.Seats
+            //     .Where(s => s.FlightId == flightId)
+            //     .AnyAsync(s => s.Tickets.Any()); // Requires Seat to have ICollection<Ticket> Tickets
         }
     }
 }

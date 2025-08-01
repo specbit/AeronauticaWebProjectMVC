@@ -21,5 +21,9 @@ namespace FlyTickets2025.web.Helpers
         Task<bool> IsUserInRoleAsync(ApplicationUser user, string roleName);
         Task<IEnumerable<ApplicationUser>> GetAllUsersAsync();
         Task<ApplicationUser?> GetUserByIdAsync(ClaimsPrincipal principal);
+        Task<ApplicationUser?> FindUserByIdAsync(string id);
+        Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(string roleName);
+        Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
+        Task<bool> HasAssociatedTicketsAsync(string userId);
     }
 }

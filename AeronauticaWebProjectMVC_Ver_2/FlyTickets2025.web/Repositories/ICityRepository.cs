@@ -6,5 +6,6 @@ namespace FlyTickets2025.web.Repositories
     {
         Task<IEnumerable<City>> GetAllCitiesWithFlightsAsync();
         Task<IEnumerable<City>> GetAllCitiesAsync();
+        Task<bool> HasAssociatedFlightsAsync(int cityId);
     }
 }

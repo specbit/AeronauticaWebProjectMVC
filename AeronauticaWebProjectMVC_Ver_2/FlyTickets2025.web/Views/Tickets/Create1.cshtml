@@ -1,0 +1,267 @@
+﻿@using FlyTickets2025.web.Data.Entities
+@model FlyTickets2025.web.Data.Entities.Ticket
+
+@{
+    ViewData["Title"] = "Buy Ticket";
+    var selectedFlightDetails = ViewBag.SelectedFlightDetails as FlyTickets2025.web.Data.Entities.Flight;
+    var seats = (ViewBag.Seats as List<FlyTickets2025.web.Data.Entities.Seat>) ?? new List<FlyTickets2025.web.Data.Entities.Seat>();
+
+    string loggedInUserFirstName = Model.ApplicationUser?.FirstName ?? User.FindFirst("FirstName")?.Value ?? "";
+    string loggedInUserLastName = Model.ApplicationUser?.LastName ?? User.FindFirst("LastName")?.Value ?? "";
+    string loggedInUserFullName = $"{loggedInUserFirstName} {loggedInUserLastName}".Trim();
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4>Detalhes do Bilhete</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form id="ticketForm" asp-action="PaymentConfirmation" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="FlightId" value="@(selectedFlightDetails?.Id ?? 0)" />
+            <input type="hidden" asp-for="ApplicationUserId" value="@(Model.ApplicationUser?.Id ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty)" />
+            <input type="hidden" asp-for="SeatId" id="SeatId" />
+            <input type="hidden" asp-for="IsBooked" value="true" />
+            <input type="hidden" asp-for="FlightDate" value="@(selectedFlightDetails?.DepartureTime.Date.ToString("yyyy-MM-dd") ?? DateTime.Now.Date.ToString("yyyy-MM-dd"))" />
+            <input type="hidden" asp-for="TicketPrice" id="FinalPrice" />
+
+            @if (selectedFlightDetails != null)
+            {
+                <div class="card card-body bg-light mb-3">
+                    <h5>Voo Selecionado: @selectedFlightDetails.FlightNumber</h5>
+                    <p>
+                        De: @selectedFlightDetails.OriginCity?.AirportName - @selectedFlightDetails.OriginCity?.Name <br />
+                        Para: @selectedFlightDetails.DestinationCity?.AirportName - @selectedFlightDetails.DestinationCity?.Name <br />
+                        Partida: @selectedFlightDetails.DepartureTime.ToString("dd-MM-yyyy HH:mm") <br />
+                        Aeronave: @selectedFlightDetails.Aircraft?.Model
+                    </p>
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label asp-for="ClientName" class="control-label"></label>
+                <input asp-for="ClientName" class="form-control" readonly value="@User.Identity?.Name" />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Primeiro Nome</label>
+                <input class="form-control" readonly value="@loggedInUserFirstName" />
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Sobrenome</label>
+                <input class="form-control" readonly value="@loggedInUserLastName" />
+            </div>
+
+            <div class="form-group mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="isForSelf" />
+                <label class="form-check-label" for="isForSelf">Passagem para mim</label>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PassengerFullName" class="control-label">Nome completo do Passageiro</label>
+                <input asp-for="PassengerFullName" class="form-control" id="PassengerFullName" />
+                <span asp-validation-for="PassengerFullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DocumentType" class="control-label">Tipo de documento de identificação</label>
+                <select asp-for="DocumentType" class="form-control" asp-items="Html.GetEnumSelectList<DocumentType>()">
+                    <option value="">-- Selecione --</option>
+                </select>
+                <span asp-validation-for="DocumentType" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DocumentNumber" class="control-label">Número do documento</label>
+                <input asp-for="DocumentNumber" class="form-control" />
+                <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PassengerType" class="control-label">Tipo de passageiro</label>
+                <select asp-for="PassengerType" class="form-control" asp-items="Html.GetEnumSelectList<PassengerType>()">
+                    <option value="">-- Selecione --</option>
+                </select>
+                <span asp-validation-for="PassengerType" class="text-danger"></span>
+            </div>
+
+            <span asp-validation-for="SeatId" class="text-danger"></span>
+
+            <div class="d-flex align-items-center gap-3">
+                <input type="submit" value="Comprar" class="btn btn-primary" />
+                <div>
+                    <strong>Preço do Assento:</strong>
+                    <span id="seatPriceDisplayForm">0,00 €</span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Assentos disponíveis</h5>
+        <div id="seatGrid">
+            @if (seats != null && seats.Any())
+            {
+                @foreach (var seat in seats)
+                {
+                    <button type="button" class="btn seat-button
+                                                                 @(seat.IsAvailableForSale ? "seat-available" : "seat-unavailable")
+                                                                 @(seat.IsAvailableForSale && seat.Type == SeatClass.Executive ? "seat-executive" : "")
+                                                                 @(seat.IsAvailableForSale && seat.Type == SeatClass.Economy ? "seat-economic" : "")"
+                            data-seat-id="@seat.Id"
+                            data-seat-value="@seat.Value"
+                    @(seat.IsAvailableForSale ? "" : "disabled")>
+                        @seat.SeatNumber
+                    </button>
+                }
+            }
+            else
+            {
+                <p>Nenhum assento disponível para seleção neste momento.</p>
+            }
+        </div>
+
+        <div class="mt-3">
+            <strong>Preço do Assento:</strong>
+            <span id="seatPriceDisplayGrid">0,00 €</span>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista de vôos</a>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const seatButtons = document.querySelectorAll(".seat-button.seat-available:not([disabled])");
+            const seatPriceDisplayForm = document.getElementById("seatPriceDisplayForm");
+            const seatPriceDisplayGrid = document.getElementById("seatPriceDisplayGrid");
+            const seatIdInput = document.getElementById("SeatId");
+            const form = document.getElementById("ticketForm");
+            const passengerTypeSelect = document.querySelector("select[name='PassengerType']");
+
+            let selectedSeatId = null;
+            let baseSeatPrice = 0; // Base Seat value set to 0
+
+            // Displays base seat value 0
+            updatePriceDisplay(0);
+
+            function formatCurrency(value) {
+                return value.toLocaleString("pt-PT", { style: "currency", currency: "EUR" });
+            }
+
+            function calculatePrice() {
+                if (baseSeatPrice === 0) return 0;
+
+                const type = passengerTypeSelect?.value || "";
+                let multiplier = 1;
+
+                if (type === "1") multiplier = 0.5;  // PassengerType "Criança"
+                else if (type === "2") multiplier = 0;  // PassengerType "Bebé"
+
+                return baseSeatPrice * multiplier;
+            }
+
+            // Dinamycally updates the price display based on the selected seat and passenger type
+            function updatePriceDisplay(value = null) {
+                const newPrice = value !== null ? value : calculatePrice();
+                seatPriceDisplayForm.textContent = formatCurrency(newPrice);
+                seatPriceDisplayGrid.textContent = formatCurrency(newPrice);
+
+                const finalPriceInput = document.getElementById("FinalPrice");
+                if (finalPriceInput) {
+                    finalPriceInput.value = newPrice.toFixed(2).replace(',', '.');
+                }
+            }
+
+            // Updates the selected seat
+            function updateSelectedSeat(seatId, seatValue, clickedButton) {
+                seatButtons.forEach(btn => btn.classList.remove("selected"));
+                clickedButton.classList.add("selected");
+
+                seatIdInput.value = seatId;
+                selectedSeatId = seatId;
+                baseSeatPrice = parseFloat(seatValue);
+
+                updatePriceDisplay(); // Updates price with type of passenger
+            }
+
+            // Click Available Seats EventListener
+            seatButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const seatId = button.dataset.seatId;
+                    const seatValue = button.dataset.seatValue;
+                    updateSelectedSeat(seatId, seatValue, button);
+                });
+            });
+
+            // Update Type of Passenger 
+            if (passengerTypeSelect) {
+                passengerTypeSelect.addEventListener("change", () => {
+                    updatePriceDisplay();
+                });
+            }
+
+            // Submit Validation
+            form.addEventListener('submit', function (event) {
+                if (!selectedSeatId || seatIdInput.value === '0' || seatIdInput.value === '') {
+                    event.preventDefault();
+                    alert('Por favor, selecione um assento antes de comprar.');
+                    document.getElementById('seatGrid').style.border = '2px solid red';
+                    document.getElementById('seatGrid').style.padding = '5px';
+
+                    let validationSpan = document.querySelector('span[data-valmsg-for="SeatId"]');
+                    if (!validationSpan) {
+                        validationSpan = document.createElement('span');
+                        validationSpan.className = 'text-danger field-validation-valid';
+                        validationSpan.setAttribute('data-valmsg-for', 'SeatId');
+                        validationSpan.setAttribute('data-valmsg-replace', 'true');
+                        document.getElementById('SeatId').parentNode.insertBefore(validationSpan, document.getElementById('SeatId').nextSibling);
+                    }
+                    validationSpan.textContent = 'Um assento deve ser selecionado.';
+                    validationSpan.classList.remove('field-validation-valid');
+                    validationSpan.classList.add('field-validation-error');
+                } else {
+                    document.getElementById('seatGrid').style.border = '';
+                    document.getElementById('seatGrid').style.padding = '';
+                    let validationSpan = document.querySelector('span[data-valmsg-for="SeatId"]');
+                    if (validationSpan) {
+                        validationSpan.textContent = '';
+                        validationSpan.classList.remove('field-validation-error');
+                        validationSpan.classList.add('field-validation-valid');
+                    }
+                }
+            });
+
+            // Checkbox "Passagem para mim"
+            const checkbox = document.getElementById("isForSelf");
+            const passengerInput = document.getElementById("PassengerFullName");
+
+            const userFirstName = "@loggedInUserFirstName";
+            const userLastName = "@loggedInUserLastName";
+
+            function updatePassengerName() {
+                if (checkbox.checked) {
+                    passengerInput.value = (userFirstName + " " + userLastName).trim();
+                    passengerInput.readOnly = true;
+                } else {
+                    passengerInput.value = "";
+                    passengerInput.readOnly = false;
+                }
+            }
+
+            checkbox.addEventListener("change", updatePassengerName);
+
+            updatePassengerName(); // Set initial passenger name state
+        });
+
+    </script>
+}

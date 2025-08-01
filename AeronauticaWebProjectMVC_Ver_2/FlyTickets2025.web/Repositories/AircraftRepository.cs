@@ -11,7 +11,7 @@ namespace FlyTickets2025.web.Repositories
         {
             _context = context; 
         }
-        // Implement specific methods for Aircraft if needed
+
         public async Task<bool> IsAircraftBookedOnDateAsync(int aircraftId, DateTime dateToCheck, int? currentFlightId = null)
         {
             // Query for any flights using this aircraft on the specific date
@@ -44,6 +44,17 @@ namespace FlyTickets2025.web.Repositories
                                  .Include(a => a.Flights) // Includes associated flights
                                  .AsNoTracking()
                                  .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<bool> HasSoldTicketsAsync(int aircraftId)
+        {
+            // Check if there are any tickets for any flight using this aircraft.
+            return await _context.Tickets.AnyAsync(t => t.Flight.AircraftId == aircraftId);
+        }
+
+        public async Task<bool> HasAssociatedFlightsAsync(int aircraftId)
+        {
+            return await _context.Flights.AnyAsync(f => f.AircraftId == aircraftId);
         }
     }
 }

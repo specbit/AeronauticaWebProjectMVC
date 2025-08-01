@@ -1,0 +1,29 @@
+﻿@model IEnumerable<FlyTickets2025.web.Models.ApplicationUserWithRolesViewModel>
+
+@{
+    ViewData["Title"] = "All Users";
+}
+
+<h1>All Registered Users</h1>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email / Username</th>
+            <th>Roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Roles)</td>
+            </tr>
+        }
+    </tbody>
+</table>

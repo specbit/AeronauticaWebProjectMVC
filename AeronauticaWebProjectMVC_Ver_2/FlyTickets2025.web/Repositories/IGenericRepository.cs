@@ -5,7 +5,7 @@
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByIdAsync(int id); // Changed to T? for nullability
         //Task<T> GetByIdAsync(int id);
-        Task CreateAsync(T entity);
+        Task<T> CreateAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T? entity);
         Task<bool> ExistsAsync(int id);

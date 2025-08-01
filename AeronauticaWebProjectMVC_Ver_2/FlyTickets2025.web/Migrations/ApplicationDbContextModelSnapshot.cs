@@ -31,7 +31,6 @@ namespace FlyTickets2025.web.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AircraftImagePath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Model")
@@ -247,6 +246,14 @@ namespace FlyTickets2025.web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DocumentNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("FlightDate")
                         .HasColumnType("datetime2");
 
@@ -255,6 +262,10 @@ namespace FlyTickets2025.web.Migrations
 
                     b.Property<bool>("IsBooked")
                         .HasColumnType("bit");
+
+                    b.Property<string>("PassengerFullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PassengerType")
                         .HasColumnType("int");

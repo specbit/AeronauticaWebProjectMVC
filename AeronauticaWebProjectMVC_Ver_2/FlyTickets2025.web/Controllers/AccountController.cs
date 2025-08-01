@@ -16,17 +16,19 @@ namespace FlyTickets2025.web.Controllers
             _applicationUserHelper = userHelper;
         }
 
+        // GET: Account/Login
+        [AllowAnonymous]
         public IActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
             {
-                // TODO: add logic to redirect Client
                 return RedirectToAction("HomeCatalog", "Flights");
             }
 
             return View();
         }
 
+        // POST: Account/Login
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -36,8 +38,8 @@ namespace FlyTickets2025.web.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Get the user object by their email (or username, depending on your LoginViewModel)
-                    var user = await _applicationUserHelper.GetUserByEmailasync(model.Username); // Assuming Username is email, adjust if it's actual username
+                    // Get the user object by their email 
+                    var user = await _applicationUserHelper.GetUserByEmailasync(model.Username); // Assuming Username is email
 
                     if (user == null)
                     {
@@ -49,20 +51,21 @@ namespace FlyTickets2025.web.Controllers
 
                     if (await _applicationUserHelper.IsUserInRoleAsync(user, "Administrador"))
                     {
-                        return RedirectToAction("Index", "Home"); // Example Admin dashboard
+                        return RedirectToAction("Index", "Home"); // Admin dashboard
                     }
                     else if (await _applicationUserHelper.IsUserInRoleAsync(user, "Funcionário"))
                     {
-                        return RedirectToAction("Index", "Home"); // Example Employee dashboard
+                        return RedirectToAction("Index", "Home"); // Employee dashboard
                     }
                     else if (await _applicationUserHelper.IsUserInRoleAsync(user, "Cliente"))
                     {
-                        return RedirectToAction("HomeCatalog", "Flights"); // Example Client catalog
+                        return RedirectToAction("HomeCatalog", "Flights"); // Client catalog
                     }
 
                     if (this.Request.Query.Keys.Contains("ReturnUrl"))
                     {
                         var returnUrl = this.Request.Query["ReturnUrl"].First();
+
                         if (Url.IsLocalUrl(returnUrl))
                         {
                             return Redirect(returnUrl);
@@ -74,35 +77,34 @@ namespace FlyTickets2025.web.Controllers
             }
 
             this.ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+
             return View(model);
         }
 
+        // POST: Account/Logout => for safety reasons, we use POST for logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _applicationUserHelper.LogoutAsync();
             return RedirectToAction("HomeCatalog", "Flights");
         }
 
+        // GET: Account/Register
+        [AllowAnonymous]
         public IActionResult Register()
         {
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    return RedirectToAction("Index", "Home");
-            //}
-
             return View();
         }
 
+        // POST: Account/Register
         [HttpPost]
         public async Task<IActionResult> Register(RegisterNewUserViewModel model)
         {
-            // Check if the model state is valid
             if (ModelState.IsValid)
             {
-                // Check if the user already exists
                 var existingUser = await _applicationUserHelper.GetUserByEmailasync(model.Username);
 
-                // If the user does not exist, create a new user
                 if (existingUser == null)
                 {
                     existingUser = new ApplicationUser
@@ -110,7 +112,7 @@ namespace FlyTickets2025.web.Controllers
                         FirstName = model.FirstName,
                         LastName = model.LastName,
                         UserName = model.Username,
-                        Email = model.Username
+                        Email = model.Username,
                     };
                 }
 
@@ -155,6 +157,7 @@ namespace FlyTickets2025.web.Controllers
             return View(model);
         }
 
+
         // GET: Account/ChangeUser
         public async Task<IActionResult> ChangeUser()
         {
@@ -182,6 +185,7 @@ namespace FlyTickets2025.web.Controllers
             {
                 // Get the current user by email
                 var user = await _applicationUserHelper.GetUserByEmailasync(User.Identity.Name);
+
                 if (user != null)
                 {
                     // Update the user's details
@@ -262,11 +266,6 @@ namespace FlyTickets2025.web.Controllers
 
         public IActionResult RegisterEmployee()
         {
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    return RedirectToAction("Index", "Home");
-            //}
-
             return View();
         }
 

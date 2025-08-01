@@ -39,10 +39,20 @@
             }
         </dd>
     </dl>
-    
+
+    @{
+        var hasSoldTickets = ViewBag.HasSoldTickets ?? false;
+    }
+
+    @if (hasSoldTickets)
+    {
+        <div class="alert alert-danger">
+            <strong>Error:</strong> This aircraft cannot be deleted because it has flights with sold tickets.
+        </div>
+    }
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Delete</button> |
+        <button type="submit" class="btn btn-danger" @(hasSoldTickets ? "disabled" : "")>Delete</button> |
         <a asp-action="Index" class="btn btn-success">Back to List</a>
     </form>
 </div>

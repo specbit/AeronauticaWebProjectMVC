@@ -7,33 +7,39 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FlyTickets2025.web.styles.css" asp-append-version="true" />
+    @Html.AntiForgeryToken()
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Flights" asp-action="HomeCatalog">FlyTickets2025.web</a>
+                @* <a class="navbar-brand" asp-area="" asp-controller="Flights" asp-action="HomeCatalog">FlyTickets2025.web</a> *@
+                @if (User.IsInRole("Administrador") || User.IsInRole("Funcionário"))
+                {
+                    // For Admins and Employees, the main link goes to the Home Index (their "dashboard")
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">FlyTickets2025.web</a>
+                }
+                else
+                {
+                    // For all other users (Clients and anonymous), it goes to the public catalog
+                    <a class="navbar-brand" asp-area="" asp-controller="Flights" asp-action="HomeCatalog">FlyTickets2025.web</a>
+                }
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-@*                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
- *@                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Administrador"))
+                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Administrador"))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Admin
+                                    Admin Search Engine
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="Users" asp-action="">Users</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="" asp-action="Roles">Roles</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ApplicationUsers" asp-action="ListEmployees">List Employees</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ApplicationUsers" asp-action="ListClients">List Clients</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ApplicationUsers" asp-action="AllUsers">List All Users</a></li>
                                 </ul>
                             </li>
                             <li>
@@ -57,14 +63,16 @@
                         }
                         else if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Cliente"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Tickets" asp-action="Index">Tickets</a>
+
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-primary" asp-area="" asp-controller="Tickets" asp-action="Index">My Tickets</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Flights" asp-action="HomeCatalog">Flight Catalog</a>
+                                <a class="btn btn-outline-secondary" asp-area="" asp-controller="Flights" asp-action="HomeCatalog">Flight Catalog</a>
                             </li>
                         }
                     </ul>
+
                     <ul class="nav navbar-nav navbar-right">
                         @if (this.User.Identity.IsAuthenticated)
                         {
@@ -82,9 +90,17 @@
                                     }
                                 </a>
                             </li>
-                            <li>
+                            @* <li>
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">LogOut</a>
+                            </li> *@
+                            <li class="nav-item">
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="nav-link btn btn-link text-dark" style="padding: 0; border: none; background: none; vertical-align: middle;">
+                                        LogOut
+                                    </button>
+                                </form>
                             </li>
+
                         }
                         else
                         {
